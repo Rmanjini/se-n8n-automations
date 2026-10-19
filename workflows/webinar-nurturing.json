@@ -1,0 +1,2875 @@
+{
+  "name": "Webinar nurturing",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 481971758,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        -336
+      ],
+      "id": "30a54f4e-b37d-4575-871a-998327b9a03f",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1520,
+        1408
+      ],
+      "id": "c57911c5-fac2-44cb-b20a-89c519d43f32",
+      "name": "Webhook",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "Day",
+                    "rightValue": "-5",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "00000000-0000-0000-0000-000000000000"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-5"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "-4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "-3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "-2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "-1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1296,
+        1344
+      ],
+      "id": "1cd2ef0a-138c-4f2a-85d3-a9b4c66920a6",
+      "name": "Switch",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1024
+      ],
+      "id": "aa41a39f-1fcd-474f-ae7b-5eb13b156933",
+      "name": "Append row in sheet5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 362111902,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1184
+      ],
+      "id": "274f8f8c-588f-4799-b143-863a445601d3",
+      "name": "Append row in sheet6",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1643648011,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1344
+      ],
+      "id": "b72e8547-af7b-4f7f-b01c-51977fcec979",
+      "name": "Append row in sheet7",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1677580012,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1488
+      ],
+      "id": "30719320-6510-4a50-9f4b-6f455fdfe1f5",
+      "name": "Append row in sheet8",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1400084258,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1632
+      ],
+      "id": "baa8a027-a741-495f-9524-929590d0e6ea",
+      "name": "Append row in sheet9",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2123398219,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        1792
+      ],
+      "id": "11005f6e-8682-4244-b54a-df1b59cd3f69",
+      "name": "Append row in sheet10",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 569104426,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        -144
+      ],
+      "id": "a8781f31-38bc-496f-854a-7dfdefbe48e9",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 683960476,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        48
+      ],
+      "id": "87516328-f746-455d-9333-859f20a3ae72",
+      "name": "Append row in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1116890971,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        256
+      ],
+      "id": "d6ac379d-16fa-43fa-885b-dfea13cfbcf3",
+      "name": "Append row in sheet11",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 28362348,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        448
+      ],
+      "id": "97a6f52a-153b-45f0-b9b6-d248d6b4a917",
+      "name": "Append row in sheet12",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1034413859,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone.no": "={{ $json[\"Phone.no\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        672
+      ],
+      "id": "b21ef349-a30d-4bd5-9d18-0d1ecd6301f0",
+      "name": "Append row in sheet14",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6,
+              "triggerAtMinute": 55
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1024,
+        160
+      ],
+      "id": "77ea4133-0be1-4355-b773-b66d80336c64",
+      "name": "-5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "0"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": -1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": -2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "00000000-0000-0000-0000-000000000000"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": -3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": -4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.day }}",
+                    "rightValue": -5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        96
+      ],
+      "id": "6778cb76-b522-493a-a21a-924ceed75ecd",
+      "name": "Switch1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1645442277,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -848,
+        160
+      ],
+      "id": "b3abec20-a63b-4cba-a5d1-1c6e361368b3",
+      "name": "Get row(s) in sheet5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// Webinar date (IST)\nconst webinarDateStr = inputData[\"Webinar Date and Time (YYYY-MM-DD HH:MM)\"];\n\n// Force today's date in IST regardless of server timezone\nconst nowUTC = new Date();\nconst istOffsetMs = 5.5 * 60 * 60 * 1000;\nconst todayIST = new Date(nowUTC.getTime() + istOffsetMs);\n\n// Get IST date string and rebuild as midnight IST\nconst istDateStr = todayIST.toISOString().slice(0, 10);\nlet todayISTMidnight = new Date(istDateStr + \"T00:00:00+05:30\");\n\n// Weekend adjustment: if today is Saturday (6), treat as Friday (shift back 1 day)\nconst dayOfWeek = todayISTMidnight.getDay();\nif (dayOfWeek === 6) {\n  todayISTMidnight = new Date(todayISTMidnight.getTime() - 1 * 24 * 60 * 60 * 1000);\n}\n\n// Webinar day at midnight IST\nconst webinarDateOnly = webinarDateStr.slice(0, 10);\nconst webinarDay = new Date(webinarDateOnly + \"T00:00:00+05:30\");\n\n// Diff in days\nconst diffMs = todayISTMidnight.getTime() - webinarDay.getTime();\nconst diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));\n\nreturn [{\n  json: {\n    day: diffDays\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        160
+      ],
+      "id": "464442b3-4b5a-4432-9966-97bad1e0fd62",
+      "name": "Code in JavaScript",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -336
+      ],
+      "id": "5ddf6f67-57ec-4c8f-bd40-73c6d37886ca",
+      "name": "day -5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 362111902,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -48,
+        -144
+      ],
+      "id": "09d1035b-7e4d-4336-84c8-df48b5e4f315",
+      "name": "day -4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1643648011,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        48
+      ],
+      "id": "0dc0d420-8237-44bc-802f-661d90a47c35",
+      "name": "day -3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1677580012,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        256
+      ],
+      "id": "86c5d6e9-b526-4004-8a8a-7b51a385e2e7",
+      "name": "day -2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1400084258,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -48,
+        448
+      ],
+      "id": "d93cfae8-8e05-4ea3-852c-30211a4ca1d1",
+      "name": "day -1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2123398219,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -48,
+        672
+      ],
+      "id": "6fa63489-9b95-4c8b-aa9a-5fb933530e87",
+      "name": "day 0",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1992533608,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1504,
+        1232
+      ],
+      "id": "075ffd9a-ca93-486c-801b-6c467893caa6",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6,
+              "triggerAtMinute": 45
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        1232
+      ],
+      "id": "c0ab0fc4-9520-4395-a5dc-9d1acf6e5854",
+      "name": "Schedule Trigger1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2057805013,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        1232
+      ],
+      "id": "46778660-f089-4a05-983b-0c6c045153bc",
+      "name": "get webinar info",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// Webinar date (IST)\nconst webinarDateStr = inputData[\"Webinar Date and Time (YYYY-MM-DD HH:MM)\"];\n\n// Force today's date in IST regardless of server timezone\nconst nowUTC = new Date();\nconst istOffsetMs = 5.5 * 60 * 60 * 1000;\nconst todayIST = new Date(nowUTC.getTime() + istOffsetMs);\n\n// Get IST date string and rebuild as midnight IST\nconst istDateStr = todayIST.toISOString().slice(0, 10); // \"YYYY-MM-DD\"\nconst todayISTMidnight = new Date(istDateStr + \"T00:00:00+05:30\");\n\n// Webinar day at midnight IST\nconst webinarDay = new Date(webinarDateStr + \":00+05:30\");\nwebinarDay.setHours(0, 0, 0, 0);\n\n// Diff in days (negative = before webinar, positive = after)\nconst diffMs = todayISTMidnight.getTime() - webinarDay.getTime();\nconst diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));\n\n// Map diffDays to reminder label and drive link key\nconst reminderMap = {\n  \"-7\": { label: \"Day(-7)\", key: \"Drive link Day(-7)\" },\n  \"-6\": { label: \"Day(-6)\", key: \"Drive link Day(-6)\" },\n  \"-5\": { label: \"Day(-5)\", key: \"Drive link Day(-5)\" },\n  \"-4\": { label: \"Day(-4)\", key: \"Drive link Day(-4)\" },\n  \"-3\": { label: \"Day(-3)\", key: \"Drive link Day(-3)\" },\n  \"-2\": { label: \"Day(-2)\", key: \"Drive link Day(-2)\" },\n  \"-1\": { label: \"Day(-1)\", key: \"Drive link Day(-1)\" },\n   \"0\": { label: \"Day(0)\",  key: \"Drive link Day(0)\"  },\n   \"1\": { label: \"Day(+1)\", key: \"Drive link Day(+1)\" },\n   \"2\": { label: \"Day(+2)\", key: \"Drive link Day(+2)\" },\n};\n\nconst match = reminderMap[String(diffDays)];\n\n// If today is not a reminder day, return null\nif (!match) {\n  return [{ json: { reminder_for: null, drive_link: null, message: \"No reminder to send today\" } }];\n}\n\nconst driveLink = inputData[match.key];\n\nreturn [{\n  json: {\n    reminder_for: match.label,\n    drive_link: driveLink,\n    webinar_date: webinarDateStr,\n    days_diff: diffDays\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        1232
+      ],
+      "id": "17832447-66d9-4604-b062-7a28fc20647e",
+      "name": "Calculate the day",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1992533608,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1504,
+        1408
+      ],
+      "id": "0b10ff49-9dec-46c1-bbdc-c6770ef942a8",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 19,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        1408
+      ],
+      "id": "b3a73c7f-d95d-468c-9f34-9cfc87c7f26c",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2057805013,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        1408
+      ],
+      "id": "9ee2e258-ddec-454d-9240-bf182d9d737e",
+      "name": "get webinar info1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n// Webinar date (IST)\nconst webinarDateStr = inputData[\"Webinar Date and Time (YYYY-MM-DD HH:MM)\"];\n// Force today's date in IST regardless of server timezone\nconst nowUTC = new Date();\nconst istOffsetMs = 5.5 * 60 * 60 * 1000;\nconst todayIST = new Date(nowUTC.getTime() + istOffsetMs);\n// Get IST date string and rebuild as 19:30 IST\nconst istDateStr = todayIST.toISOString().slice(0, 10); // \"YYYY-MM-DD\"\nconst todayISTMidnight = new Date(istDateStr + \"T19:30:00+05:30\");\n// Webinar day at 19:30 IST\nconst webinarDay = new Date(webinarDateStr + \":00+05:30\");\nwebinarDay.setHours(19, 30, 0, 0);\n// Diff in days (negative = before webinar, positive = after)\nconst diffMs = todayISTMidnight.getTime() - webinarDay.getTime();\nconst diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));\n// Map diffDays to reminder label and drive link key\nconst reminderMap = {\n  \"-7\": { label: \"Day(-7)E\", key: \"Drive link Day(-7)\" },\n  \"-6\": { label: \"Day(-6)E\", key: \"Drive link Day(-6)\" },\n  \"-5\": { label: \"Day(-5)E\", key: \"Drive link Day(-5)\" },\n  \"-4\": { label: \"Day(-4)E\", key: \"Drive link Day(-4)\" },\n  \"-3\": { label: \"Day(-3)E\", key: \"Drive link Day(-3)\" },\n  \"-2\": { label: \"Day(-2)E\", key: \"Drive link Day(-2)\" },\n  \"-1\": { label: \"Day(-1)E\", key: \"Drive link Day(-1)\" },\n   \"0\": { label: \"Day(0)E\",  key: \"Drive link Day(0)\"  },\n   \"1\": { label: \"Day(+1)E\", key: \"Drive link Day(+1)\" },\n   \"2\": { label: \"Day(+2)E\", key: \"Drive link Day(+2)\" },\n};\nconst match = reminderMap[String(diffDays)];\n// If today is not a reminder day, return null\nif (!match) {\n  return [{ json: { reminder_for: null, drive_link: null, message: \"No reminder to send today\" } }];\n}\nconst driveLink = inputData[match.key];\nreturn [{\n  json: {\n    reminder_for: match.label,\n    drive_link: driveLink,\n    webinar_date: webinarDateStr,\n    days_diff: diffDays\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        1408
+      ],
+      "id": "66986837-1ada-4cc8-a083-c5e817b69eec",
+      "name": "Calculate the day1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input 1: Sheet data (array of contacts)\n// Input 2: Calculate the day output (single object or array)\nconst contacts = $input.all().map(item => item.json);\n\n// Get the day calculation output from the second input\nconst dayData = $('Calculate the day1').first().json;\n\n// Extract the day value from reminder_for e.g. \"Day(0)\" → \"Day(0)\"\nconst dayValue = dayData.reminder_for;\n\n// Map day onto each contact, filling the existing \"DAY\" field\nconst result = contacts.map(contact => ({\n  ...contact,\n  DAY: dayValue  // fills the \"DAY\" column that's already in your sheet rows\n}));\n\nreturn result.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        1408
+      ],
+      "id": "37370b85-8c4c-4651-be80-df3a44b9497f",
+      "name": "Code in JavaScript2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1992533608,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1504,
+        1600
+      ],
+      "id": "727ab424-c123-41bb-9ca1-9e2964ead250",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 23,
+              "triggerAtMinute": 45
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        1600
+      ],
+      "id": "1626c18f-234d-4e62-90b4-9847dbeebdbc",
+      "name": "Schedule Trigger2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2057805013,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        1600
+      ],
+      "id": "d6e0eb76-b6fc-4234-b90a-96463cf22dd8",
+      "name": "get webinar info2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n// Webinar date (IST)\nconst webinarDateStr = inputData[\"Webinar Date and Time (YYYY-MM-DD HH:MM)\"];\n// Force today's date in IST regardless of server timezone\nconst nowUTC = new Date();\nconst istOffsetMs = 5.5 * 60 * 60 * 1000;\nconst todayIST = new Date(nowUTC.getTime() + istOffsetMs);\n// Get IST date string and rebuild as 19:30 IST\nconst istDateStr = todayIST.toISOString().slice(0, 10); // \"YYYY-MM-DD\"\nconst todayISTMidnight = new Date(istDateStr + \"T19:30:00+05:30\");\n// Webinar day at 19:30 IST\nconst webinarDay = new Date(webinarDateStr + \":00+05:30\");\nwebinarDay.setHours(19, 30, 0, 0);\n// Diff in days (negative = before webinar, positive = after)\nconst diffMs = todayISTMidnight.getTime() - webinarDay.getTime();\nconst diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));\n// Map diffDays to reminder label and drive link key\nconst reminderMap = {\n  \"-7\": { label: \"Day(-7)A\", key: \"Drive link Day(-7)\" },\n  \"-6\": { label: \"Day(-6)A\", key: \"Drive link Day(-6)\" },\n  \"-5\": { label: \"Day(-5)A\", key: \"Drive link Day(-5)\" },\n  \"-4\": { label: \"Day(-4)A\", key: \"Drive link Day(-4)\" },\n  \"-3\": { label: \"Day(-3)A\", key: \"Drive link Day(-3)\" },\n  \"-2\": { label: \"Day(-2)A\", key: \"Drive link Day(-2)\" },\n  \"-1\": { label: \"Day(-1)A\", key: \"Drive link Day(-1)\" },\n   \"0\": { label: \"Day(0)A\",  key: \"Drive link Day(0)\"  },\n   \"1\": { label: \"Day(+1)A\", key: \"Drive link Day(+1)\" },\n   \"2\": { label: \"Day(+2)A\", key: \"Drive link Day(+2)\" },\n};\nconst match = reminderMap[String(diffDays)];\n// If today is not a reminder day, return null\nif (!match) {\n  return [{ json: { reminder_for: null, drive_link: null, message: \"No reminder to send today\" } }];\n}\nconst driveLink = inputData[match.key];\nreturn [{\n  json: {\n    reminder_for: match.label,\n    drive_link: driveLink,\n    webinar_date: webinarDateStr,\n    days_diff: diffDays\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        1600
+      ],
+      "id": "11e3fdb7-7a64-4c04-9863-050799f8f931",
+      "name": "Calculate the day2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input 1: Sheet data (array of contacts)\n// Input 2: Calculate the day output (single object or array)\nconst contacts = $input.all().map(item => item.json);\n\n// Get the day calculation output from the second input\nconst dayData = $('Calculate the day2').first().json;\n\n// Extract the day value from reminder_for e.g. \"Day(0)\" → \"Day(0)\"\nconst dayValue = dayData.reminder_for;\n\n// Map day onto each contact, filling the existing \"DAY\" field\nconst result = contacts.map(contact => ({\n  ...contact,\n  DAY: dayValue  // fills the \"DAY\" column that's already in your sheet rows\n}));\n\nreturn result.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        1600
+      ],
+      "id": "0d2803ed-1536-4e57-9576-91a42a7bc984",
+      "name": "Code in JavaScript3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input 1: Sheet data (array of contacts)\n// Input 2: Calculate the day output (single object or array)\nconst contacts = $input.all().map(item => item.json);\n\n// Get the day calculation output from the second input\nconst dayData = $('Calculate the day').first().json;\n\n// Extract the day value from reminder_for e.g. \"Day(0)\" → \"Day(0)\"\nconst dayValue = dayData.reminder_for;\n\n// Map day onto each contact, filling the existing \"DAY\" field\nconst result = contacts.map(contact => ({\n  ...contact,\n  DAY: dayValue  // fills the \"DAY\" column that's already in your sheet rows\n}));\n\nreturn result.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        1232
+      ],
+      "id": "89c1d510-30f2-42c3-8e30-506b64a7ec26",
+      "name": "Code in JavaScript1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1078970248,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1232
+      ],
+      "id": "4cb7afdb-cc54-40e3-b551-5cdd89e08c1a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1078970248,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1408
+      ],
+      "id": "a237aa66-7313-4ef9-a089-d618a1a7d586",
+      "name": "Append row in sheet13",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1078970248,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1600
+      ],
+      "id": "1337eaa7-f9ec-4761-8bc2-8095cdb07e42",
+      "name": "Append row in sheet15",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        1040
+      ],
+      "id": "539263f3-7110-4c37-b084-4973c27f13c5",
+      "name": "Webhook1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2123398219,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        1040
+      ],
+      "id": "30a2233a-2010-478f-8705-a7a32531af90",
+      "name": "Append row in sheet16",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "Day",
+                    "rightValue": "-5",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "00000000-0000-0000-0000-000000000000"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-5"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "Day",
+                    "rightValue": "-4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "-4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2416,
+        64
+      ],
+      "id": "6df8996e-046b-4d93-9d76-7c0f93b95b33",
+      "name": "Switch2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1616,
+        -80
+      ],
+      "id": "5f52176f-0240-4ddb-b65c-b899ebbc23a5",
+      "name": "Append row in sheet17",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 362111902,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone.no",
+              "displayName": "Phone.no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1616,
+        80
+      ],
+      "id": "4be2a878-00b4-4310-a602-271a6baf8a27",
+      "name": "Append row in sheet18",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1643648011,
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1616,
+        240
+      ],
+      "id": "65cfc9ab-0921-4e3f-a1f1-84858f69d502",
+      "name": "Append row in sheet19",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        1728
+      ],
+      "id": "779929a9-4257-40e3-a1dc-060ae0a90064",
+      "name": "Webhook3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -752,
+        -96
+      ],
+      "id": "35492dba-2f26-4e47-8d45-4797d466a3ed",
+      "name": "Webhook4",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1776,
+        -800
+      ],
+      "id": "333a4268-d6a8-427e-9eb7-6883d874c141",
+      "name": "Webhook6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input item\nconst item = $input.first().json;\n\n// Extract all query parameters\nconst query = item.query;\n\n// Generate live IST date and time\nconst now = new Date();\nconst istOptions = { timeZone: 'Asia/Kolkata' };\n\nconst date = now.toLocaleDateString('en-IN', { ...istOptions, day: '2-digit', month: '2-digit', year: 'numeric' });\nconst time = now.toLocaleTimeString('en-IN', { ...istOptions, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });\nconst dateTime = now.toLocaleString('en-IN', { ...istOptions, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });\n\nreturn {\n  Name:         (query['Name'] ?? '').trim().split(' ')[0],\n  Phone:        String(query['Phone'] ?? '').trim().replace(/\\s+/g, ''),\n  Email:        query['Email']     ?? '',\n  'Utm-Term':   query['Utm-Term']  ?? '',\n  Toggle:       query['Toggle']    ?? '',\n\n  IST_Date:     date,\n  IST_Time:     time,\n  IST_DateTime: dateTime\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1584,
+        -608
+      ],
+      "id": "9f68fdac-363a-4509-98d2-2a6e2443e12b",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone": "={{ $json.Phone }}",
+            "Email": "={{ $json.Email }}",
+            "utm-Term": "={{ $json[\"Utm-Term\"] }}",
+            "Toggle key": "={{ $json.Toggle }}",
+            "Time of Capture": "={{ $json.IST_DateTime }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm-Term",
+              "displayName": "utm-Term",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Toggle key",
+              "displayName": "Toggle key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Webinar date",
+              "displayName": "Webinar date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Webinar time",
+              "displayName": "Webinar time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time of Capture",
+              "displayName": "Time of Capture",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1376,
+        -608
+      ],
+      "id": "62a44e3f-ee67-4956-896f-87bb2097e47f",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input item\nconst item = $input.first().json;\n\n// Extract all query parameters\nconst query = item.query;\n\n// Generate live IST date and time\nconst now = new Date();\nconst istOptions = { timeZone: 'Asia/Kolkata' };\n\nconst date = now.toLocaleDateString('en-IN', { ...istOptions, day: '2-digit', month: '2-digit', year: 'numeric' });\nconst time = now.toLocaleTimeString('en-IN', { ...istOptions, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });\nconst dateTime = now.toLocaleString('en-IN', { ...istOptions, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });\n\nreturn {\n  utm_Term:     query['utm_Term']  ?? '',\n  Email:        query['Email']     ?? '',\n  toggle:       query['toggle']    ?? '',\n  PhoneNo:      query['Phone.no']  ?? '',\n  Name:         (query['Name'] ?? '').split(' ')[0],\n\n  IST_Date:     date,\n  IST_Time:     time,\n  IST_DateTime: dateTime\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1584,
+        -800
+      ],
+      "id": "0e5736a6-e579-4bf1-985e-9f4c2b868d01",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Phone": "={{ $json.PhoneNo }}",
+            "Email": "={{ $json.Email }}",
+            "utm-Term": "={{ $json.utm_Term }}",
+            "Toggle key": "={{ $json.toggle }}",
+            "Time of Capture": "={{ $json.IST_DateTime }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm-Term",
+              "displayName": "utm-Term",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Toggle key",
+              "displayName": "Toggle key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Webinar date",
+              "displayName": "Webinar date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Webinar time",
+              "displayName": "Webinar time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time of Capture",
+              "displayName": "Time of Capture",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1376,
+        -800
+      ],
+      "id": "cb5b0cf8-e975-4ad0-89bb-7c76b595c29b",
+      "name": "Append row in sheet20",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1776,
+        -608
+      ],
+      "id": "bab4eb97-1110-4109-a7e2-8ed5699292b0",
+      "name": "Webhook2"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet10": {
+      "main": [
+        []
+      ]
+    },
+    "-5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "day 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "day -1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "day -2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "day -3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "day -4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "day -5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day -5": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day -4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day -3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day -2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day -1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "day 0": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get webinar info": {
+      "main": [
+        [
+          {
+            "node": "Calculate the day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate the day": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get webinar info1": {
+      "main": [
+        [
+          {
+            "node": "Calculate the day1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate the day1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get webinar info2": {
+      "main": [
+        [
+          {
+            "node": "Calculate the day2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate the day2": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet17",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet18",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet20",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

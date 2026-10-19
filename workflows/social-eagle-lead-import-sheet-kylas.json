@@ -1,0 +1,149 @@
+{
+  "name": "Social Eagle — Lead Import Sheet → Kylas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-eagle-lead-import-sheet",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "bc9737a6-313b-4b50-814b-f555f4905a2c",
+      "name": "Webhook - Receive from Sheet",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Social Eagle Lead Import — Validate & Prepare\n// Receives payload from Google Apps Script, validates required fields,\n// sanitises notes (belt-and-braces), returns clean payload ready for Kylas.\n\nconst input = $input.first().json;\n\n// Apps Script sends the payload as the request body, already structured.\n// If it was sent with Content-Type: application/json, n8n parses it into\n// `body`. If sent as text/plain (some Apps Script UrlFetchApp defaults),\n// we need to JSON.parse `body` manually.\nlet data;\nif (input.body && typeof input.body === 'object') {\n  data = input.body;\n} else if (input.body && typeof input.body === 'string') {\n  try {\n    data = JSON.parse(input.body);\n  } catch (e) {\n    throw new Error('Invalid JSON in request body: ' + e.message);\n  }\n} else {\n  // Fallback: the fields may be at the top level\n  data = input;\n}\n\n// --- Required-field guardrails (Apps Script should have validated, but double-check) ---\nconst required = ['firstName', 'lastName', 'phoneNumbers', 'source', 'customFieldValues'];\nfor (const f of required) {\n  if (data[f] === undefined || data[f] === null || data[f] === '') {\n    throw new Error(`Missing required field: ${f}`);\n  }\n}\n\nif (!Array.isArray(data.phoneNumbers) || data.phoneNumbers.length === 0) {\n  throw new Error('phoneNumbers must be a non-empty array');\n}\n\nif (typeof data.customFieldValues !== 'object') {\n  throw new Error('customFieldValues must be an object');\n}\n\nif (!Array.isArray(data.customFieldValues.cfLeadType) || data.customFieldValues.cfLeadType.length === 0) {\n  throw new Error('customFieldValues.cfLeadType must be a non-empty array');\n}\n\nif (!Array.isArray(data.customFieldValues.cfSubSourceMultiPicklist) || data.customFieldValues.cfSubSourceMultiPicklist.length === 0) {\n  throw new Error('customFieldValues.cfSubSourceMultiPicklist must be a non-empty array');\n}\n\n// --- Sanitise notes (strip any lingering line breaks / tabs) ---\nif (data.customFieldValues.cfNotesFromLeadImport) {\n  data.customFieldValues.cfNotesFromLeadImport = String(data.customFieldValues.cfNotesFromLeadImport)\n    .replace(/[\\r\\n\\t]+/g, ' ')\n    .replace(/ {2,}/g, ' ')\n    .trim();\n}\n\n// --- Ensure empty string for optional UTM fields (never null) ---\n['utmSource', 'utmMedium', 'utmCampaign', 'utmContent', 'utmTerm'].forEach(k => {\n  if (data[k] === null || data[k] === undefined) data[k] = '';\n});\n\n// --- Return clean payload ready for Kylas HTTP call ---\nreturn { json: { payload: data } };\n"
+      },
+      "id": "0b6f3174-6ba2-45ce-8be3-b1212f920796",
+      "name": "Validate & Prepare Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/leads/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "f4371b48-df6a-4067-8e68-fcdbb0074baa",
+      "name": "Create Lead in Kylas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        544,
+        64
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format the response from Kylas into the shape Apps Script expects.\n// Apps Script looks for:  { success: true, leadId: \"...\" }  or  { success: false, error: \"...\" }\n\nconst resp = $input.first().json;\n\n// When fullResponse + neverError are on, the HTTP node returns:\n//   { statusCode, headers, body }\n// We need to check statusCode and extract leadId from body.\n\nconst statusCode = resp.statusCode || resp.status || 0;\nconst body = resp.body || resp;\n\nif (statusCode >= 200 && statusCode < 300) {\n  // Success — extract Kylas lead ID\n  // Kylas returns the created lead object. The ID may be in `id` or similar.\n  const leadId = body.id || body.leadId || body._id || '';\n  return {\n    json: {\n      success: true,\n      leadId: String(leadId),\n      kylasResponse: body\n    }\n  };\n}\n\n// Failure — extract an error message\nlet errorMessage = 'Unknown error';\nif (body && typeof body === 'object') {\n  errorMessage = body.message || body.error || body.errorMessage || JSON.stringify(body).substring(0, 200);\n} else if (typeof body === 'string') {\n  errorMessage = body.substring(0, 200);\n}\n\nreturn {\n  json: {\n    success: false,\n    error: `HTTP ${statusCode}: ${errorMessage}`,\n    kylasResponse: body\n  }\n};\n"
+      },
+      "id": "affcef94-65e1-44aa-b213-1813e95b5ea8",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "33cd176b-74e2-4248-9e78-7fb1a21f6322",
+      "name": "Respond to Sheet",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        64
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive from Sheet": {
+      "main": [
+        [
+          {
+            "node": "Validate & Prepare Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Prepare Payload": {
+      "main": [
+        [
+          {
+            "node": "Create Lead in Kylas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead in Kylas": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

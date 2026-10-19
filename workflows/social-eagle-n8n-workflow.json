@@ -1,0 +1,623 @@
+{
+  "name": "Social Eagle - Tamil Voice Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-eagle-lead-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger (Lead No Meeting)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "notes": "Triggered when a lead has no meeting scheduled. Expects JSON body with: lead_name, phone_number, lead_source, course_interest (optional)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and validate lead data from webhook\nconst body = $input.first().json.body || $input.first().json;\n\nconst leadName = body.lead_name || body.name || 'there';\nconst phoneNumber = body.phone_number || body.phone || '';\nconst leadSource = body.lead_source || 'Unknown';\nconst courseInterest = body.course_interest || 'Unknown';\nconst leadId = body.lead_id || body.id || Date.now().toString();\n\n// Validate phone number - must be 10 digits Indian number\nconst cleanPhone = phoneNumber.replace(/[^0-9]/g, '');\nconst isValidPhone = cleanPhone.length === 10 || \n                     (cleanPhone.length === 12 && cleanPhone.startsWith('91'));\n\nif (!isValidPhone) {\n  throw new Error(`Invalid phone number: ${phoneNumber}`);\n}\n\n// Format for Exotel - needs 0XXXXXXXXXX format\nconst exotelPhone = cleanPhone.length === 10 ? \n  '0' + cleanPhone : \n  '0' + cleanPhone.slice(2);\n\nreturn [{\n  json: {\n    leadId,\n    leadName,\n    phoneNumber: cleanPhone,\n    exotelPhone,\n    leadSource,\n    courseInterest,\n    callStartTime: new Date().toISOString(),\n    conversationHistory: [],\n    callStatus: 'initiated'\n  }\n}];"
+      },
+      "id": "prepare-lead-data",
+      "name": "Prepare & Validate Lead Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ],
+      "notes": "Validates phone number, formats for Exotel, prepares lead context"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.exotel.com/v1/Accounts/{{ $env.EXOTEL_SID }}/Calls/connect.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{ $json.exotelPhone }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $env.EXOTEL_CALLER_ID }}"
+            },
+            {
+              "name": "CallerId",
+              "value": "={{ $env.EXOTEL_CALLER_ID }}"
+            },
+            {
+              "name": "Url",
+              "value": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/social-eagle-call-handler"
+            },
+            {
+              "name": "StatusCallback",
+              "value": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/social-eagle-call-status"
+            },
+            {
+              "name": "CustomField",
+              "value": "={{ $json.leadId }}"
+            },
+            {
+              "name": "TimeLimit",
+              "value": "360"
+            },
+            {
+              "name": "Record",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "exotel-make-call",
+      "name": "Exotel - Make Outbound Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        680,
+        300
+      ],
+      "notes": "Makes outbound call via Exotel. Lead's phone rings first, then connects to our agent handler webhook. Record=true for QA."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Store call SID and lead data for the ongoing conversation\nconst exotelResponse = $input.first().json;\nconst leadData = $('Prepare & Validate Lead Data').first().json;\n\nconst callSid = exotelResponse.Call?.Sid || exotelResponse.Sid || 'unknown';\n\nreturn [{\n  json: {\n    ...leadData,\n    callSid,\n    callInitiated: true,\n    exotelResponse\n  }\n}];"
+      },
+      "id": "store-call-context",
+      "name": "Store Call Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ],
+      "notes": "Stores call SID and lead context for conversation tracking"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-eagle-call-handler",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "call-handler-webhook",
+      "name": "Call Handler Webhook (Exotel Streams Here)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        560
+      ],
+      "notes": "Exotel sends audio/speech to this webhook during the call. Receives: CallSid, From, To, RecordingUrl (if any), speech transcription"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sarvam.ai/speech-to-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-subscription-key",
+              "value": "={{ $env.SARVAM_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "={{ $json.body.audio_url }}",
+              "parameterType": "formBinaryData"
+            },
+            {
+              "name": "language_code",
+              "value": "ta-IN"
+            },
+            {
+              "name": "model",
+              "value": "saarika:v2"
+            },
+            {
+              "name": "with_timestamps",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sarvam-stt",
+      "name": "Sarvam AI - Speech to Text (Tamil)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        460,
+        560
+      ],
+      "notes": "Transcribes Tamil/Tanglish speech from lead using Sarvam Saarika v2 model. Language: ta-IN (Tamil India)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build conversation history and prepare GPT messages\nconst sttResult = $input.first().json;\nconst callHandlerData = $('Call Handler Webhook (Exotel Streams Here)').first().json;\n\n// Get transcribed text from Sarvam\nconst userTranscript = sttResult.transcript || \n                       sttResult.text || \n                       callHandlerData.body?.speech_result || \n                       '';\n\n// Get stored conversation history (passed via Exotel CustomField or stored in memory)\nlet conversationHistory = [];\ntry {\n  const historyRaw = callHandlerData.body?.conversation_history || '[]';\n  conversationHistory = JSON.parse(historyRaw);\n} catch(e) {\n  conversationHistory = [];\n}\n\n// Get lead context\nconst leadName = callHandlerData.body?.lead_name || 'there';\nconst courseInterest = callHandlerData.body?.course_interest || 'Unknown';\n\n// Add new user message to history\nif (userTranscript) {\n  conversationHistory.push({\n    role: 'user',\n    content: userTranscript\n  });\n}\n\n// Build the full system prompt with lead context injected\nconst systemPrompt = `You are PRIYA, a warm outbound sales agent for Social Eagle Academy.\n\nLEAD CONTEXT FOR THIS CALL:\n- Lead Name: ${leadName}\n- Known Course Interest: ${courseInterest}\n- Call started at: ${new Date().toISOString()}\n\nLANGUAGE: Always speak natural Tanglish (Tamil + English mix). Never full Tamil, never full English.\n\nYOUR GOAL: Qualify the lead, build rapport, pitch the right course, and book a Zoom meeting. Collect: name confirmation, phone confirmation, course interest, current situation (job/business/student), preferred meeting day and time.\n\nCOURSES:\n1. Digital Entrepreneurship Program (DEP) - Rs.60,000 - 30 days online - Meta Ads, Google Ads, Funnels, Automation, SEO, Video Editing, Design - June 2026 Batch 36\n2. Generative AI Programme (AI-B9) - Rs.50,000 - 6 weeks online - Build, Automate, Scale with AI - Batch 9, limited seats\n\nSocial Eagle credibility: 10 years, 26,000+ students, 4.9/5 Google rating (1300+ reviews), Trustpilot Excellent.\n\nCALL FLOW:\n1. Open warmly: \"Vanakkam! [Lead Name]-aa? Naan Priya, Social Eagle Academy-la irundhu pesuren. Oru rendu nimisham pesalama?\"\n2. Ask ONE question at a time about their situation\n3. Pitch relevant course in 3-4 sentences\n4. Handle objections naturally\n5. Book Zoom meeting - collect name, phone, course interest, preferred time\n6. Close warmly\n\nOBJECTIONS:\n- Price high: \"First client-aye course fee cover pannidum. Installment option-um irukkum - zoom call-la discuss pannalam\"\n- No time: \"Daily 2 hours dhaan - online, your convenience\"\n- Need to think: \"Sure - adhanaalaye zoom call book pannalam, no pressure\"\n- Not genuine: \"Google 1300+ reviews, 4.9 rating - check pannunga\"\n\nRULES:\n- ONE question at a time\n- Max 5 minute call\n- Never collect payment\n- Always Tanglish\n- End EVERY response with the next single question or clear next step\n\nWhen call is complete or lead gives all info, end your response with this JSON block:\n###CALL_DATA###\n{\"call_outcome\": \"\", \"lead_name\": \"\", \"phone_confirmed\": false, \"course_interest\": \"\", \"current_situation\": \"\", \"lead_goal\": \"\", \"preferred_meeting_day\": \"\", \"preferred_meeting_time\": \"\", \"zoom_meeting_agreed\": false, \"objections_raised\": [], \"notes\": \"\"}\n###END_CALL_DATA###`;\n\nreturn [{\n  json: {\n    systemPrompt,\n    conversationHistory,\n    userTranscript,\n    leadName,\n    courseInterest,\n    callSid: callHandlerData.body?.CallSid || ''\n  }\n}];"
+      },
+      "id": "build-gpt-messages",
+      "name": "Build GPT Message Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        560
+      ],
+      "notes": "Builds conversation history, injects lead context into system prompt, prepares messages array for GPT-4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.OPENAI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify($json.systemPrompt) }}\n    }\n    {{ $json.conversationHistory.length > 0 ? ',' + $json.conversationHistory.map(m => JSON.stringify(m)).join(',') : '' }}\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 300\n}",
+        "options": {}
+      },
+      "id": "openai-gpt",
+      "name": "OpenAI GPT-4o-mini - Generate Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        900,
+        560
+      ],
+      "notes": "GPT-4o-mini generates the next Tanglish response. Using mini to keep costs low during testing (~$0.001 per call turn)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract GPT response text and check if call should end\nconst gptResponse = $input.first().json;\nconst context = $('Build GPT Message Context').first().json;\n\nconst fullResponse = gptResponse.choices?.[0]?.message?.content || \n                     'Oru nimisham wait pannunga...';\n\n// Check if GPT included call data (end of call signal)\nconst hasCallData = fullResponse.includes('###CALL_DATA###');\nlet callData = null;\nlet speakText = fullResponse;\n\nif (hasCallData) {\n  const parts = fullResponse.split('###CALL_DATA###');\n  speakText = parts[0].trim();\n  const jsonPart = parts[1]?.split('###END_CALL_DATA###')?.[0]?.trim();\n  try {\n    callData = JSON.parse(jsonPart);\n  } catch(e) {\n    callData = null;\n  }\n}\n\n// Update conversation history\nconst updatedHistory = [\n  ...context.conversationHistory,\n  { role: 'assistant', content: speakText }\n];\n\n// Keep history manageable - last 10 turns only\nconst trimmedHistory = updatedHistory.slice(-10);\n\nreturn [{\n  json: {\n    speakText,\n    callData,\n    isCallEnding: hasCallData,\n    updatedHistory: JSON.stringify(trimmedHistory),\n    callSid: context.callSid\n  }\n}];"
+      },
+      "id": "process-gpt-response",
+      "name": "Process GPT Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        560
+      ],
+      "notes": "Extracts speak text from GPT response, detects if call should end, updates conversation history"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sarvam.ai/text-to-speech",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-subscription-key",
+              "value": "={{ $env.SARVAM_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": [{{ JSON.stringify($json.speakText) }}],\n  \"target_language_code\": \"ta-IN\",\n  \"speaker\": \"pavithra\",\n  \"pitch\": 0,\n  \"pace\": 1.0,\n  \"loudness\": 1.5,\n  \"speech_sample_rate\": 8000,\n  \"enable_preprocessing\": true,\n  \"model\": \"bulbul:v1\"\n}",
+        "options": {}
+      },
+      "id": "sarvam-tts",
+      "name": "Sarvam AI - Text to Speech (Tamil Pavithra)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1340,
+        560
+      ],
+      "notes": "Converts Priya's Tanglish response to audio using Sarvam Bulbul v1. Speaker: pavithra (natural Tamil female voice). 8000Hz sample rate optimized for phone calls."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Exotel TwiML-style XML response to play audio back on call\nconst ttsResult = $input.first().json;\nconst gptContext = $('Process GPT Response').first().json;\n\n// Sarvam returns base64 audio\nconst audioBase64 = ttsResult.audios?.[0] || '';\n\n// Build response for Exotel\n// Exotel uses XML to control call flow\nlet exotelXML;\n\nif (gptContext.isCallEnding) {\n  // End the call after playing final message\n  exotelXML = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Play>${audioBase64 ? 'data:audio/wav;base64,' + audioBase64 : ''}</Play>\n  <Hangup/>\n</Response>`;\n} else {\n  // Continue conversation - record next user response\n  exotelXML = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Play>${audioBase64 ? 'data:audio/wav;base64,' + audioBase64 : ''}</Play>\n  <Record \n    action=\"{{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/social-eagle-call-handler\"\n    method=\"POST\"\n    maxLength=\"30\"\n    finishOnKey=\"#\"\n    playBeep=\"false\"\n    trim=\"trim-silence\"\n  />\n</Response>`;\n}\n\nreturn [{\n  json: {\n    exotelXML,\n    audioBase64,\n    isCallEnding: gptContext.isCallEnding,\n    callData: gptContext.callData,\n    updatedHistory: gptContext.updatedHistory\n  }\n}];"
+      },
+      "id": "build-exotel-response",
+      "name": "Build Exotel XML Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        560
+      ],
+      "notes": "Builds Exotel XML to play Sarvam audio on the call, then records next lead response. If call ending, adds Hangup tag."
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.exotelXML }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-to-exotel",
+      "name": "Respond to Exotel (Play Audio)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        460
+      ],
+      "notes": "Sends XML back to Exotel to play Priya's voice response on the live call"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-call-ending",
+              "leftValue": "={{ $json.isCallEnding }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-call-ending",
+      "name": "Is Call Ending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        560
+      ],
+      "notes": "Routes to save lead data if call is ending, otherwise continues the loop"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Save qualified lead data to Google Sheets / CRM\nconst buildExotelData = $('Build Exotel XML Response').first().json;\nconst webhookData = $('Call Handler Webhook (Exotel Streams Here)').first().json;\n\nconst callData = buildExotelData.callData || {};\nconst leadName = webhookData.body?.lead_name || '';\nconst phoneNumber = webhookData.body?.From || '';\nconst leadId = webhookData.body?.CustomField || '';\n\n// Prepare final lead record\nconst leadRecord = {\n  lead_id: leadId,\n  call_timestamp: new Date().toISOString(),\n  lead_name: callData.lead_name || leadName,\n  phone_number: phoneNumber,\n  phone_confirmed: callData.phone_confirmed || false,\n  course_interest: callData.course_interest || 'Unknown',\n  current_situation: callData.current_situation || 'unknown',\n  lead_goal: callData.lead_goal || '',\n  call_outcome: callData.call_outcome || 'completed',\n  zoom_meeting_agreed: callData.zoom_meeting_agreed || false,\n  preferred_meeting_day: callData.preferred_meeting_day || '',\n  preferred_meeting_time: callData.preferred_meeting_time || '',\n  objections_raised: (callData.objections_raised || []).join(', '),\n  notes: callData.notes || '',\n  needs_callback: callData.call_outcome === 'callback_requested',\n  callback_time: callData.callback_time || '',\n  meeting_booked: false,\n  created_at: new Date().toISOString()\n};\n\nconsole.log('Lead data saved:', JSON.stringify(leadRecord, null, 2));\n\nreturn [{ json: leadRecord }];"
+      },
+      "id": "prepare-lead-record",
+      "name": "Prepare Final Lead Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        460
+      ],
+      "notes": "Prepares the final qualified lead record with all collected data"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "value": "={{ $env.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "value": "Qualified Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "call_timestamp": "={{ $json.call_timestamp }}",
+            "lead_name": "={{ $json.lead_name }}",
+            "phone_number": "={{ $json.phone_number }}",
+            "course_interest": "={{ $json.course_interest }}",
+            "current_situation": "={{ $json.current_situation }}",
+            "lead_goal": "={{ $json.lead_goal }}",
+            "call_outcome": "={{ $json.call_outcome }}",
+            "zoom_meeting_agreed": "={{ $json.zoom_meeting_agreed }}",
+            "preferred_meeting_day": "={{ $json.preferred_meeting_day }}",
+            "preferred_meeting_time": "={{ $json.preferred_meeting_time }}",
+            "objections_raised": "={{ $json.objections_raised }}",
+            "notes": "={{ $json.notes }}",
+            "needs_callback": "={{ $json.needs_callback }}",
+            "callback_time": "={{ $json.callback_time }}",
+            "meeting_booked": "={{ $json.meeting_booked }}",
+            "created_at": "={{ $json.created_at }}"
+          },
+          "matchingColumns": [
+            "lead_id"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "save-to-google-sheets",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        2220,
+        380
+      ],
+      "notes": "Saves qualified lead data to Google Sheets 'Qualified Leads' tab. Your sales team reads this to manually book Zoom meetings."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.exotel.com/v1/Accounts/{{ $env.EXOTEL_SID }}/Sms/send.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{ $env.EXOTEL_SMS_SENDER_ID }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $json.phone_number }}"
+            },
+            {
+              "name": "Body",
+              "value": "=Vanakkam {{ $json.lead_name }}! Social Eagle Academy-la irundhu pesinom. Ungal Zoom meeting details WhatsApp-la pathaikuvom. Doubts irundhalum 044-XXXXXXXX-la call pannunga. - Social Eagle Team"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-sms-followup",
+      "name": "Send SMS Follow-up (If Meeting Agreed)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2220,
+        540
+      ],
+      "notes": "Sends SMS to lead confirming call and that team will follow up with Zoom link. Only fires if zoom_meeting_agreed = true"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-eagle-call-status",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "call-status-webhook",
+      "name": "Call Status Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        820
+      ],
+      "notes": "Receives call status updates from Exotel: initiated, ringing, answered, completed, failed, busy, no-answer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle call status updates from Exotel\nconst statusData = $input.first().json.body || $input.first().json;\n\nconst callSid = statusData.CallSid || '';\nconst callStatus = statusData.Status || statusData.CallStatus || '';\nconst duration = statusData.Duration || 0;\nconst leadId = statusData.CustomField || '';\n\nconsole.log(`Call Status Update - SID: ${callSid}, Status: ${callStatus}, Duration: ${duration}s, Lead: ${leadId}`);\n\n// If call was not answered, flag for retry\nconst needsRetry = ['no-answer', 'busy', 'failed'].includes(callStatus.toLowerCase());\nconst retryCount = parseInt(statusData.retry_count || '0');\n\nreturn [{\n  json: {\n    callSid,\n    callStatus,\n    duration: parseInt(duration),\n    leadId,\n    needsRetry: needsRetry && retryCount < 3,\n    retryCount: retryCount + 1,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "handle-call-status",
+      "name": "Handle Call Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        820
+      ],
+      "notes": "Processes Exotel status callbacks. Flags unanswered calls for retry (max 3 attempts)"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger (Lead No Meeting)": {
+      "main": [
+        [
+          {
+            "node": "Prepare & Validate Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare & Validate Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Exotel - Make Outbound Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exotel - Make Outbound Call": {
+      "main": [
+        [
+          {
+            "node": "Store Call Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Handler Webhook (Exotel Streams Here)": {
+      "main": [
+        [
+          {
+            "node": "Sarvam AI - Speech to Text (Tamil)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sarvam AI - Speech to Text (Tamil)": {
+      "main": [
+        [
+          {
+            "node": "Build GPT Message Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build GPT Message Context": {
+      "main": [
+        [
+          {
+            "node": "OpenAI GPT-4o-mini - Generate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o-mini - Generate Response": {
+      "main": [
+        [
+          {
+            "node": "Process GPT Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process GPT Response": {
+      "main": [
+        [
+          {
+            "node": "Sarvam AI - Text to Speech (Tamil Pavithra)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sarvam AI - Text to Speech (Tamil Pavithra)": {
+      "main": [
+        [
+          {
+            "node": "Build Exotel XML Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Exotel XML Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Exotel (Play Audio)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Call Ending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Call Ending?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Final Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Prepare Final Lead Record": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send SMS Follow-up (If Meeting Agreed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Status Webhook": {
+      "main": [
+        [
+          {
+            "node": "Handle Call Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

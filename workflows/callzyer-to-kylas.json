@@ -1,0 +1,5797 @@
+{
+  "name": "callzyer to kylas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "callyzertokylas",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -6176,
+        1568
+      ],
+      "id": "dcf9ede8-7ec1-439c-820c-306cd1bb6834",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.totalElements }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5056,
+        896
+      ],
+      "id": "5c3053a1-d6f8-449f-9952-ee032b0062ab",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body[0].call_logs[0].client_number }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "number",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "00000000-0000-0000-0000-000000000000"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $('Webhook').item.json.body[0].call_logs[0].note }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -5504,
+        992
+      ],
+      "id": "332d311c-e02a-46b5-9d47-84854bb78f73",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4832,
+        1280
+      ],
+      "id": "fd95e8ef-6f04-4d82-b7a2-554cd74a2d02",
+      "name": "search2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"ownerId\": {{ Number($('number to owner id mapping1').item.json.user_id) }},\n  \"firstName\": \"Eagle\",\n  \"lastName\": \"{{ String($json.team) }} CZR\",\n  \"source\": 2794444,\n  \"phoneNumbers\": [\n    {\n      \"type\": \"MOBILE\",\n      \"code\": \"IN\",\n      \"value\": \"{{ String($('Webhook').item.json.body[0].call_logs[0].client_number) }}\",\n      \"dialCode\": \"+91\",\n      \"primary\": true\n    }\n  ],\n  \"customFieldValues\": {\n    \"cfLeadType\": [{{ Number($json.id) }}],\n    \"cfSubSourceMultiPicklist\": [2819961]\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4160,
+        608
+      ],
+      "id": "19b84edb-d9fc-4189-9ea9-64682ca4beb8",
+      "name": "create lead",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "content": "for creating notes",
+        "height": 208,
+        "width": 960,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5376,
+        1232
+      ],
+      "typeVersion": 1,
+      "id": "0a6477b5-0ce9-475b-b5ed-8824beddabd7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.totalElements }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2816,
+        1088
+      ],
+      "id": "579c70e2-87ec-4ba7-a760-622782440a75",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2592,
+        992
+      ],
+      "id": "cdb8d618-7f3d-4b8f-ac56-84e296006a5a",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -2368,
+        992
+      ],
+      "id": "bf750396-53de-43e6-832f-2be312cef135",
+      "name": "Date & Time1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/call-logs/{{ $('search call log with ID for lead ').item.json.content[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $json.outcome }}\",\n  \"startTime\": \"{{ $('Code in JavaScript5').item.json.utc_time }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript4').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead').item.json.content[0].values[0].id }},\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1472,
+        1184
+      ],
+      "id": "7cc91ddd-5bdc-42c5-83f9-d33d1ab013ee",
+      "name": "update recording to call log",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2368,
+        1184
+      ],
+      "id": "f0d213a1-11a1-4b0a-aa6b-937e5ebf93c3",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Webhook').first().json.body[0].call_logs[0].synced_at;\n\n// Convert to ISO format first\nconst isoString = input.replace(\" \", \"T\") + \"+05:30\";\n\nconst utcTime = new Date(isoString).toISOString();\n\nreturn {\n  utc_time: utcTime\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        1184
+      ],
+      "id": "50605662-26ba-4548-b6d6-a8684eda0c4f",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -2144,
+        1184
+      ],
+      "id": "7088c31f-3652-4250-9619-12f2fd07abc4",
+      "name": "Date & Time2"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2592,
+        1184
+      ],
+      "id": "354bd9fd-7e61-4626-8e09-c28ed59b84a9",
+      "name": "Wait1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('Code in JavaScript11').item.json.outcome }}\",\n  \"ownerId\": \"{{ $json.user_id }}\",\n  \"startTime\": \"{{ $('Code in JavaScript3').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript2').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead').item.json.content[0].values[0].id }},\n    \"name\": \"{{ $('search for lead').item.json.content[0].values[0].firstName }} {{ $('search for lead').item.json.content[0].values[0].lastName }}\",\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1472,
+        992
+      ],
+      "id": "a0e432ee-2d91-49b6-894e-f4d7e5c46735",
+      "name": "create call log with call id on lead",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "10"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt,desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"operator\": \"equal\",\n        \"id\": \"cfCallLogID\",\n        \"field\": \"customFieldValues.cfCallLogID\",\n        \"type\": \"string\",\n        \"value\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3040,
+        1088
+      ],
+      "id": "79fe4e87-6d7d-466f-ba71-ed5767ddfd74",
+      "name": "search call log with ID for lead ",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentDate = $input.first().json.currentDate;\n\n// Convert to UTC\nconst utcDate = new Date(currentDate).toISOString();\n\nreturn {\n  original: currentDate,\n  utc: utcDate\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2144,
+        992
+      ],
+      "id": "feebf92f-f440-4dfa-8298-567daf969f1d",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5280,
+        896
+      ],
+      "id": "961d1111-9ad0-4d3c-8578-712feb0de6ae",
+      "name": "search for lead",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": 8
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3264,
+        1088
+      ],
+      "id": "9217332b-24b0-49ef-8f39-9a6e2854c938",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        992
+      ],
+      "id": "4c2be840-4d6a-4e87-9e8d-7a90c549ecdb",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        992
+      ],
+      "id": "1fe60a7e-f984-4251-bf39-7c6868a49e60",
+      "name": "Code in JavaScript11"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        1184
+      ],
+      "id": "cea83900-db6a-4a4c-aee0-8bf23a0f0956",
+      "name": "Code in JavaScript12"
+    },
+    {
+      "parameters": {
+        "content": "working ",
+        "height": 1520,
+        "width": 5748
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5536,
+        512
+      ],
+      "typeVersion": 1,
+      "id": "11828a5c-e849-48aa-845d-1a54f9804613",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/notes/relation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-GB,en-US;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"macOS\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sourceEntity\": {\n    \"description\": \"<div><span style=\\\"color:rgb(46,56,77);\\\">{{ $('Webhook').item.json.body[0].call_logs[0].note.replace(/\\n/g, ' ').trim() }}</span></div>\",\n    \"mentions\": null,\n    \"ownerId\": {{ $('number to owner id mapping').item.json.user_id }}\n  },\n  \"targetEntityId\": \"{{ $json.content[0].values[0].id }}\",\n  \"targetEntityType\": \"LEAD\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4608,
+        1280
+      ],
+      "id": "ab68d468-eb31-4618-9986-3b608a2e03f1",
+      "name": "update note on lead",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -3264,
+        608
+      ],
+      "id": "5a44788c-efdb-417f-982b-af39db396ed9",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('call status').item.json.outcome }}\",\n  \"ownerId\": \"{{ $json.user_id }}\",\n  \"startTime\": \"{{ $('utc').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('call type to lower case').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead1').item.json.content[0].values[0].id }},\n    \"name\": \"{{ $('search for lead1').item.json.content[0].values[0].firstName }} {{ $('search for lead1').item.json.content[0].values[0].lastName }}\",\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead1').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2368,
+        608
+      ],
+      "id": "0ad0a3e0-0bb3-4c27-b52e-007dcc5d334b",
+      "name": "create call log with call id on lead1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3712,
+        608
+      ],
+      "id": "f534615c-16cd-4ea9-a7b5-a180d86ad15a",
+      "name": "search for lead1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -5280,
+        1280
+      ],
+      "id": "764c97c0-5830-49c3-837d-22060b5bf420",
+      "name": "Wait3"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1024,
+        992
+      ],
+      "id": "93c3d551-472b-474f-a430-64c0f322f583",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1024,
+        1184
+      ],
+      "id": "cf8c268f-77da-4dc8-b574-65297c069e76",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        992
+      ],
+      "id": "b4cf1d9c-6a82-4857-935d-dd1e81d016a5",
+      "name": "Wait4"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        1184
+      ],
+      "id": "d34ba6fc-4fcf-4627-9366-6f3b2b9f2950",
+      "name": "Wait5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Constant to compare\nconst CONSTANT_VALUE = 2819961;\n\n// 2. Get array input safely\nconst inputArray = $('HTTP Request').first().json.customFieldValues.cfSubSourceMultiPicklist || [];\n// 3. Normalize values (handle string/number mix)\nconst normalizedArray = inputArray.map(v => Number(v));\n\n// 4. Check if any value matches\nconst hasMatch = normalizedArray.includes(CONSTANT_VALUE);\n\n// 5. Result\nconst result = hasMatch ? \"no\" : 2819961;\n\n// 6. Return\nreturn [\n  {\n    json: {\n      result: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        992
+      ],
+      "id": "0f59c3d0-40eb-40ff-9e80-a22dc46ca73a",
+      "name": "Code in JavaScript25"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        992
+      ],
+      "id": "0131bcef-5903-4bb0-a0bc-8a701a8a2379",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json-patch+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=[\n  {\n    \"op\": \"add\",\n    \"path\": \"/customFieldValues/cfSubSourceMultiPicklist/-\",\n    \"value\": {{ $json.result }}\n  }\n]",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        992
+      ],
+      "id": "c4264b61-57f6-433d-830c-5b627343206f",
+      "name": "update lead details from the form3",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Constant to compare\nconst CONSTANT_VALUE = 2819961;\n\n// 2. Get array input safely\nconst inputArray = $('HTTP Request1').first().json.customFieldValues.cfSubSourceMultiPicklist || [];\n// 3. Normalize values (handle string/number mix)\nconst normalizedArray = inputArray.map(v => Number(v));\n\n// 4. Check if any value matches\nconst hasMatch = normalizedArray.includes(CONSTANT_VALUE);\n\n// 5. Result\nconst result = hasMatch ? \"no\" : 2819961;\n\n// 6. Return\nreturn [\n  {\n    json: {\n      result: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        1184
+      ],
+      "id": "55ac59ed-a42e-4d7c-9d78-d42977329d8f",
+      "name": "Code in JavaScript28"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        1184
+      ],
+      "id": "16f8b1de-ed11-4839-a658-2f1772b66155",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json-patch+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=[\n  {\n    \"op\": \"add\",\n    \"path\": \"/customFieldValues/cfSubSourceMultiPicklist/-\",\n    \"value\": {{ $json.result }}\n  }\n]",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        1184
+      ],
+      "id": "aab0cc83-04ed-4569-b9e4-e551e32f4814",
+      "name": "update lead details from the form6",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Constant to compare\nconst CONSTANT_VALUE = $input.first().json.id;\n\n// 2. Get array input safely\nconst inputArray = $('fetch full lead data').first().json.customFieldValues.cfLeadType || [];\n// 3. Normalize values (handle string/number mix)\nconst normalizedArray = inputArray.map(v => Number(v));\n\n// 4. Check if any value matches\nconst hasMatch = normalizedArray.includes(CONSTANT_VALUE);\n\n// 5. Result\nconst result = hasMatch ? \"no\" : $input.first().json.id;\n\n// 6. Return\nreturn [\n  {\n    json: {\n      result: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3712,
+        992
+      ],
+      "id": "089b89d5-6568-4335-8b50-e57b52445aa0",
+      "name": "Code in JavaScript32"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3488,
+        992
+      ],
+      "id": "ee299d6d-774f-41a8-a054-3d48959ac9fd",
+      "name": "If10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"ownerId\": {{ Number($('muber to owner id').item.json.user_id) }},\n  \"firstName\": \"{{ $('search for lead').item.json.content[0].values[0].firstName }}\",\n  \"lastName\": \"{{ String($json.team) }} CZR\",\n  \"source\": 2794444,\n  \"phoneNumbers\": [\n    {\n      \"type\": \"MOBILE\",\n      \"code\": \"IN\",\n      \"value\": \"{{ String($('Webhook').item.json.body[0].call_logs[0].client_number) }}\",\n      \"dialCode\": \"+91\",\n      \"primary\": true\n    }\n  ],\n  \"customFieldValues\": {\n    \"cfLeadType\": [{{ Number($json.id) }}],\n    \"cfSubSourceMultiPicklist\": [2819961]\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2592,
+        800
+      ],
+      "id": "55049f72-f0b5-4633-8736-e48dba9e21fa",
+      "name": "create lead1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -4832,
+        992
+      ],
+      "id": "46722e79-6c13-43e8-b25f-caf99946e17a",
+      "name": "Wait7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5056,
+        1280
+      ],
+      "id": "f519038b-ca80-4f04-a339-ea4ac6c8e839",
+      "name": "number to owner id mapping"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4832,
+        608
+      ],
+      "id": "c79a81b9-7c4c-4545-a548-78cf7247cfcc",
+      "name": "number to owner id mapping1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Number → Team mapping\nconst teamMap = {\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"FFL\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"AI FOR KIDS\",\n  \"+910000000000\": \"SOS\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"DM\"\n};\n\n// Get input number (change field name if needed)\nconst inputNumber = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup team\nconst team = teamMap[inputNumber] || null;\n\n// Return as valid n8n object\nreturn [\n  {\n    json: {\n      team: team\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4608,
+        608
+      ],
+      "id": "0d36256e-e887-4884-ae24-d42c0eb2b153",
+      "name": "number to team mapping"
+    },
+    {
+      "parameters": {
+        "jsCode": "const team = $input.first().json.team;\n\nfunction getIdFromValue(value) {\n    const data = [\n        { value: \"DM\", id: 2794436 },\n        { value: \"AI\", id: 2794437 },\n        { value: \"FFL\", id: 2867808 },\n        { value: \"AI FOR KIDS\", id: 2867807 },\n        { value: \"SETTER\", id: 2873543 },\n        { value: \"SOS\", id: 2794438 }\n    ];\n\n    const result = data.find(item => item.value === value);\n    return result ? result.id : null;\n}\n\nconst id = getIdFromValue(team);\n\nreturn [\n  {\n    json: {\n      team: team,\n      id: id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4384,
+        608
+      ],
+      "id": "034f35dc-9869-4240-9e8c-20dff4b6cd32",
+      "name": "team to leadtype id"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3936,
+        608
+      ],
+      "id": "a368451c-30b2-49d0-a255-1f40ed55bc50",
+      "name": "for lambda function"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3488,
+        608
+      ],
+      "id": "4440d2df-9ff9-4d6d-8a63-8ab02444d294",
+      "name": "call type to lower case"
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentDate = $input.first().json.currentDate;\n\n// Convert to UTC\nconst utcDate = new Date(currentDate).toISOString();\n\nreturn {\n  original: currentDate,\n  utc: utcDate\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3040,
+        608
+      ],
+      "id": "cfa947ea-a470-4dad-819b-83d9232d933c",
+      "name": "utc"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2816,
+        608
+      ],
+      "id": "837454e4-de72-41df-ad84-2c2b5dfb753a",
+      "name": "call status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2592,
+        608
+      ],
+      "id": "8e28ff46-0cc8-4acc-af05-ea5e8fb730fc",
+      "name": "number to owner id "
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4608,
+        992
+      ],
+      "id": "d8ecaf4b-74f2-4aae-b70d-537b69c916c3",
+      "name": "fetch full lead data",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4384,
+        992
+      ],
+      "id": "9e0c44aa-78f7-4dc8-a613-ec1eeec2ea14",
+      "name": "number to owner id mapping2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Number → Team mapping\nconst teamMap = {\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"FFL\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"AI FOR KIDS\",\n  \"+910000000000\": \"SOS\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"DM\"\n};\n\n// Get input number (change field name if needed)\nconst inputNumber = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup team\nconst team = teamMap[inputNumber] || null;\n\n// Return as valid n8n object\nreturn [\n  {\n    json: {\n      team: team\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4160,
+        992
+      ],
+      "id": "4b65d985-a53d-470e-b404-639c6aecd6da",
+      "name": "number to tem mapping"
+    },
+    {
+      "parameters": {
+        "jsCode": "const team = $input.first().json.team;\n\nfunction getIdFromValue(value) {\n    const data = [\n        { value: \"DM\", id: 2794436 },\n        { value: \"AI\", id: 2794437 },\n        { value: \"FFL\", id: 2867808 },\n        { value: \"AI FOR KIDS\", id: 2867807 },\n        { value: \"SETTER\", id: 2873543 },\n        { value: \"SOS\", id: 2794438 }\n    ];\n\n    const result = data.find(item => item.value === value);\n    return result ? result.id : null;\n}\n\nconst id = getIdFromValue(team);\n\nreturn [\n  {\n    json: {\n      team: team,\n      id: id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3936,
+        992
+      ],
+      "id": "5efbd549-b9cf-4beb-8046-f22c56567849",
+      "name": "team to leadtype id1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3264,
+        800
+      ],
+      "id": "1dea0b0e-fdc1-469e-8b9a-fc14f6871799",
+      "name": "muber to owner id"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Number → Team mapping\nconst teamMap = {\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"AI\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"FFL\",\n  \"+910000000000\": \"DM\",\n  \"+910000000000\": \"AI FOR KIDS\",\n  \"+910000000000\": \"SOS\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"SETTER\",\n  \"+910000000000\": \"DM\"\n};\n\n// Get input number (change field name if needed)\nconst inputNumber = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup team\nconst team = teamMap[inputNumber] || null;\n\n// Return as valid n8n object\nreturn [\n  {\n    json: {\n      team: team\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3040,
+        800
+      ],
+      "id": "c19d80ff-a7e8-4ce0-be0e-ae63a8e7ae82",
+      "name": "number to team"
+    },
+    {
+      "parameters": {
+        "jsCode": "const team = $input.first().json.team;\n\nfunction getIdFromValue(value) {\n    const data = [\n        { value: \"DM\", id: 2794436 },\n        { value: \"AI\", id: 2794437 },\n        { value: \"FFL\", id: 2867808 },\n        { value: \"AI FOR KIDS\", id: 2867807 },\n        { value: \"SETTER\", id: 2873543 },\n        { value: \"SOS\", id: 2794438 }\n    ];\n\n    const result = data.find(item => item.value === value);\n    return result ? result.id : null;\n}\n\nconst id = getIdFromValue(team);\n\nreturn [\n  {\n    json: {\n      team: team,\n      id: id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2816,
+        800
+      ],
+      "id": "0a7b1b0b-6e04-4d47-97f1-1104617a0420",
+      "name": "team to leadtype id2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"CONTACT\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1008,
+        224
+      ],
+      "id": "237b8e4d-3c1f-4e70-b665-65c87fe41381",
+      "name": "search4",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.content[0].values[0].entityType }}",
+              "rightValue": "CONTACT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        224
+      ],
+      "id": "600d48fc-81fd-4852-99c7-009b20bb9ccd",
+      "name": "If3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/call-logs/{{ $json.content[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"associatedTo\": [\n    {\n      \"id\": \"{{ $json.content[0].id }}\",\n      \"entity\": \"{{ $json.content[0].relatedTo[0].entity }}\",\n      \"name\": \"{{ $json.content[0].relatedTo[0].name }}\",\n      \"phoneNumber\": \"{{ $json.content[0].phoneNumber }}\"\n    }\n  ],\n  \"isManual\": true,\n  \"outcome\": \"{{ $json.content[0].outcome }}\",\n  \"startTime\": \"{{ $('Code in JavaScript5').item.json.utc_time }}\",\n  \"phoneNumber\": \"{{ $json.content[0].phoneNumber }}\",\n  \"callType\": \"{{ $('Code in JavaScript4').item.json.call_type_lower }}\",\n  \"duration\": {{ $('Webhook').item.json.body[0].call_logs[0].duration }},\n  \"durationType\": \"Minutes\",\n  \"relatedTo\": {\n    \"id\": \"{{ $json.content[0].relatedTo[0].id }}\",\n    \"name\": \"{{ $json.content[0].relatedTo[0].name }}\",\n    \"entity\": \"{{ $json.content[0].relatedTo[0].entity }}\",\n    \"phoneNumber\": \"{{ $json.content[0].phoneNumber }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfContactCallLogID\": \"{{ $json.content[0].customFieldValues.cfContactCallLogID }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        1200
+      ],
+      "id": "c732d367-73d5-475d-a61d-f174b7ae7648",
+      "name": "update recording to contact1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"CONTACT\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        976,
+        1200
+      ],
+      "id": "f1216ea9-a7a4-484d-9d20-c114e01cf228",
+      "name": "search5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.content[0].values[0].entityType }}",
+              "rightValue": "CONTACT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        1200
+      ],
+      "id": "1a9f199b-be79-4829-aded-b8cc98318931",
+      "name": "If6",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.totalElements }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        672
+      ],
+      "id": "0de3c557-18b2-4c1d-b225-ad0c81f71eba",
+      "name": "If1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "10"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt,desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"operator\": \"equal\",\n        \"id\": \"cfContactCallLogID\",\n        \"field\": \"customFieldValues.cfContactCallLogID\",\n        \"type\": \"string\",\n        \"value\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1424,
+        1200
+      ],
+      "id": "2b071f04-17d0-4db1-a786-0ce7bb9ba27e",
+      "name": "search call log with ID contact1",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('Code in JavaScript11').item.json.outcome }}\",\n  \"startTime\": \"{{ $('Code in JavaScript3').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript2').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for a contact').item.json.content[0].values[0].id }},\n    \"entity\": \"contact\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfContactCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1664,
+        672
+      ],
+      "id": "952653ff-f89a-4083-9014-674bb6ca094e",
+      "name": "create call log with call id on contact",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"CONTACT\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1216,
+        672
+      ],
+      "id": "8c54d961-35ae-4fda-b8be-2f1c1fe5e08a",
+      "name": "search for a contact",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2336,
+        672
+      ],
+      "id": "292e2201-18a0-46ca-9372-3f2a406e4523",
+      "name": "Loop Over Items",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content;\n\nreturn data.map(item => ({\n  json: {\n    id: item.id,\n    name: item.name,\n    stageId: item.pipelineStage?.id\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        672
+      ],
+      "id": "e43026ba-da4a-4d84-98de-66fc7a8f81ca",
+      "name": "Code in JavaScript1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/deal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not:A-Brand\";v=\"99\", \"Google Chrome\";v=\"145\", \"Chromium\";v=\"145\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"field\": \"associatedContacts\",\n        \"id\": \"associatedContacts\",\n        \"operator\": \"equal\",\n        \"type\": \"long\",\n        \"value\": \"{{ $('search for a contact').item.json.content[0].values[0].id }}\"\n      },\n      {\n        \"field\": \"forecastingType\",\n        \"id\": \"forecastingType\",\n        \"operator\": \"in\",\n        \"type\": \"string\",\n        \"value\": [\n          \"OPEN\"\n        ]\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1888,
+        672
+      ],
+      "id": "e53b7d52-d86e-4249-a97c-a0f745ae534c",
+      "name": "search for deal",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"outcome\": \"{{ $('Code in JavaScript11').item.json.outcome }}\",\n    \"ownerId\": \"{{ $('Code in JavaScript8').item.json.user_id }}\",\n    \"startTime\": \"{{ $('Code in JavaScript3').item.json.utc }}\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n    \"callType\": \"{{ $('Code in JavaScript2').item.json.call_type_lower }}\",\n    \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n    \"relatedTo\": {\n        \"id\": {{ $json.id }},\n        \"entity\": \"deal\",\n        \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n    },\n    \"associatedTo\": [\n        {\n            \"id\": {{ $('search for deal').item.json.content[0].associatedContacts[0].id }},\n            \"entity\": \"contact\",\n            \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n        }\n    ],\n    \"callRecording\": {\n        \"fileName\": \"{{ $('search for deal').item.json.content[0].associatedContacts[0].id }}.mp3\",\n        \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n    },\n  \"customFieldValues\": {\n    \"cfDealCallLogId\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2560,
+        672
+      ],
+      "id": "6a34c6d2-654f-4d46-b69c-cdd6886d71ea",
+      "name": "create call log on deal with call log id",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2320,
+        1200
+      ],
+      "id": "a7c42257-050c-42f0-9408-c34cfe281631",
+      "name": "Loop Over Items1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content;\n\nreturn data.map(item => {\n  const contact = item.relatedTo.find(r => r.entity === 'contact');\n  const deal = item.relatedTo.find(r => r.entity === 'deal');\n\n  return {\n    json: {\n      id: item.id,\n      contactId: contact ? contact.id : null,\n      dealId: deal ? deal.id : null\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        1200
+      ],
+      "id": "7485d897-83d9-4da8-9d96-96e90051ea88",
+      "name": "Code in JavaScript9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/call-logs/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"outcome\": \"{{ $('Code in JavaScript12').item.json.outcome }}\",\n    \"startTime\": \"{{ $('Code in JavaScript5').item.json.utc_time }}\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n    \"callType\": \"{{ $('Code in JavaScript4').item.json.call_type_lower }}\",\n    \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n    \"relatedTo\": {\n        \"id\": {{ $json.dealId }},\n        \"entity\": \"deal\",\n        \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n    },\n    \"associatedTo\": [\n        {\n            \"id\": {{ $json.contactId }},\n            \"entity\": \"contact\",\n            \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n        }\n    ],\n    \"callRecording\": {\n        \"fileName\": \"{{ $json.id }}.mp3\",\n        \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n    },\n  \"customFieldValues\": {\n    \"cfDealCallLogId\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2544,
+        1200
+      ],
+      "id": "cd2b24de-0f66-4ffd-b0dd-0d61c7c89950",
+      "name": "create call log on deal with call log id1",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "10"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt,desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"operator\": \"equal\",\n        \"id\": \"cfDealCallLogId\",\n        \"field\": \"customFieldValues.cfDealCallLogId\",\n        \"type\": \"string\",\n        \"value\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1872,
+        1200
+      ],
+      "id": "bda82e3a-af09-405f-bf1f-b63ab2aa0385",
+      "name": "search call log with ID contact",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2128,
+        224
+      ],
+      "id": "1ae9ddab-942f-44bb-9a18-2d7e78506301",
+      "name": "Loop Over Items2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content;\n\nreturn data.map(item => ({\n  json: {\n    id: item.id,\n    name: item.name,\n    stageId: item.pipelineStage?.id\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        224
+      ],
+      "id": "046c75ab-3531-4dde-ac85-c9baae2ef417",
+      "name": "Code in JavaScript10",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/deal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not:A-Brand\";v=\"99\", \"Google Chrome\";v=\"145\", \"Chromium\";v=\"145\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"field\": \"associatedContacts\",\n        \"id\": \"associatedContacts\",\n        \"operator\": \"equal\",\n        \"type\": \"long\",\n        \"value\": \"{{ $json.content[0].values[0].id }}\"\n      },\n      {\n        \"field\": \"forecastingType\",\n        \"id\": \"forecastingType\",\n        \"operator\": \"in\",\n        \"type\": \"string\",\n        \"value\": [\n          \"OPEN\"\n        ]\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1680,
+        224
+      ],
+      "id": "e71d95b3-393e-4671-8a44-43b0399118d1",
+      "name": "search for deal1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/notes/relation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sourceEntity\": {\n    \"description\": \"{{ $('Webhook').item.json.body[0].call_logs[0].note }}\",\n  \"ownerId\": {{ $('number to owner id mapping').item.json.user_id }}\n  },\n  \"targetEntityId\": {{ $json.id }},\n  \"targetEntityType\": \"DEAL\"\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2352,
+        224
+      ],
+      "id": "8452bd07-bff6-47cb-806a-6e8708fa315a",
+      "name": "update note on contact",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/notes/relation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sourceEntity\": {\n    \"description\": \"{{ $('Webhook').item.json.body[0].call_logs[0].note }}\",\n  \"ownerId\": {{ $('number to owner id mapping').item.json.user_id }}\n\n  },\n  \"targetEntityId\": {{ $json.content[0].values[0].id }},\n  \"targetEntityType\": \"CONTACT\"\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1456,
+        224
+      ],
+      "id": "c9290db6-86cd-42f3-86b4-4a68674c8c97",
+      "name": "update note on contact1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.totalElements }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        448
+      ],
+      "id": "c9f319e5-83a3-473d-8485-328a0c77a808",
+      "name": "If2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('call status').item.json.outcome }}\",\n  \"startTime\": \"{{ $('utc').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('call type to lower case').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for a contact1').item.json.content[0].values[0].id }},\n    \"entity\": \"contact\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead1').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfContactCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1456,
+        448
+      ],
+      "id": "5b383b88-50ae-4c39-9dab-a52c463a6f10",
+      "name": "create call log with call id on contact1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"CONTACT\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1008,
+        448
+      ],
+      "id": "0e376487-0ebf-45b5-b96e-3ea48b7f2db2",
+      "name": "search for a contact1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2128,
+        448
+      ],
+      "id": "8261a3c4-04e0-48ad-87e7-4e4175fd7876",
+      "name": "Loop Over Items3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content;\n\nreturn data.map(item => ({\n  json: {\n    id: item.id,\n    name: item.name,\n    stageId: item.pipelineStage?.id\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        448
+      ],
+      "id": "8370df21-f1bd-4510-a030-193b4b3da232",
+      "name": "Code in JavaScript17",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/deal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not:A-Brand\";v=\"99\", \"Google Chrome\";v=\"145\", \"Chromium\";v=\"145\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"field\": \"associatedContacts\",\n        \"id\": \"associatedContacts\",\n        \"operator\": \"equal\",\n        \"type\": \"long\",\n        \"value\": \"{{ $('search for a contact1').item.json.content[0].values[0].id }}\"\n      },\n      {\n        \"field\": \"forecastingType\",\n        \"id\": \"forecastingType\",\n        \"operator\": \"in\",\n        \"type\": \"string\",\n        \"value\": [\n          \"OPEN\"\n        ]\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1680,
+        448
+      ],
+      "id": "67f8d668-9f79-48ac-90a3-74789e2e7b81",
+      "name": "search for deal2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"outcome\": \"{{ $('call status').item.json.outcome }}\",\n    \"ownerId\": \"{{ $('number to owner id ').item.json.user_id }}\",\n    \"startTime\": \"{{ $('utc').item.json.utc }}\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n    \"callType\": \"{{ $('call type to lower case').item.json.call_type_lower }}\",\n    \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n    \"relatedTo\": {\n        \"id\": {{ $json.id }},\n        \"entity\": \"deal\",\n        \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n    },\n    \"associatedTo\": [\n        {\n            \"id\": {{ $('search for deal2').item.json.content[0].associatedContacts[0].id }},\n            \"entity\": \"contact\",\n            \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n        }\n    ],\n    \"callRecording\": {\n        \"fileName\": \"{{ $('search for deal2').item.json.content[0].associatedContacts[0].id }}.mp3\",\n        \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n    },\n  \"customFieldValues\": {\n    \"cfDealCallLogId\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2352,
+        448
+      ],
+      "id": "e15ceda3-e751-4ae8-af76-dce05feb22b5",
+      "name": "create call log on deal with call log id2",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"updatedBy\": {{ $json.updatedBy }},\n  \"id\": {{ $json.id }},\n  \"actualClosureDate\": \"{{ $json.actualClosureDate }}\",\n  \"ownerId\": {{ $json.ownerId }},\n  \"firstName\": \"{{ $json.firstName }}\",\n  \"lastName\": \"{{ $('Code in JavaScript23').item.json.team }} CZR\",\n  \"source\": 2794444,\n  \"phoneNumbers\": [\n    {\n      \"id\": {{ $json.phoneNumbers[0].id }},\n      \"type\": \"MOBILE\",\n      \"code\": \"IN\",\n      \"value\": \"{{ $json.phoneNumbers[0].value }}\",\n      \"dialCode\": \"+91\",\n      \"primary\": true\n    }\n  ],\n  \"pipeline\": {\n    \"id\": {{ $json.pipeline.id }},\n    \"name\": \"{{ $json.pipeline.name }}\",\n    \"stage\": {\n      \"id\": {{ $json.pipeline.stage.id }},\n      \"name\": \"{{ $json.pipeline.stage.name }}\"\n    }\n  },\n  \"forecastingType\": \"{{ $json.forecastingType }}\",\n  \"latestActivityCreatedAt\": \"{{ $json.latestActivityCreatedAt }}\",\n  \"meetingScheduledOn\": \"{{ $json.meetingScheduledOn }}\",\n  \"createdViaId\": \"{{ $json.createdViaId }}\",\n  \"createdViaName\": \"{{ $json.createdViaName }}\",\n  \"createdViaType\": \"{{ $json.createdViaType }}\",\n  \"updatedViaId\": \"{{ $json.updatedViaId }}\",\n  \"updatedViaName\": \"{{ $json.updatedViaName }}\",\n  \"updatedViaType\": \"{{ $json.updatedViaType }}\",\n  \"customFieldValues\": {\n    \"cfSubSourceMultiPicklist\": [2819961],\n    \"cfLeadType\": [{{ $('Code in JavaScript20').item.json.id }}]\n  },\n  \"score\": 0,\n  \"facebook\": null,\n  \"twitter\": null,\n  \"linkedIn\": null,\n  \"companyWebsite\": null\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        976,
+        1872
+      ],
+      "id": "c0530e04-2205-4d0d-9708-4a38dbbc40f2",
+      "name": "update lead details from the form",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"updatedBy\": {{ $json.updatedBy }},\n  \"id\": {{ $json.id }},\n  \"actualClosureDate\": \"{{ $json.actualClosureDate }}\",\n  \"ownerId\": {{ $json.ownerId }},\n  \"firstName\": \"{{ $json.firstName }}\",\n  \"lastName\": \"{{ $('Code in JavaScript22').item.json.team }} CZR\",\n  \"source\": 2794444,\n  \"phoneNumbers\": [\n    {\n      \"id\": {{ $json.phoneNumbers[0].id }},\n      \"type\": \"MOBILE\",\n      \"code\": \"IN\",\n      \"value\": \"{{ $json.phoneNumbers[0].value }}\",\n      \"dialCode\": \"+91\",\n      \"primary\": true\n    }\n  ],\n  \"pipeline\": {\n    \"id\": {{ $json.pipeline.id }},\n    \"name\": \"{{ $json.pipeline.name }}\",\n    \"stage\": {\n      \"id\": {{ $json.pipeline.stage.id }},\n      \"name\": \"{{ $json.pipeline.stage.name }}\"\n    }\n  },\n  \"forecastingType\": \"{{ $json.forecastingType }}\",\n  \"latestActivityCreatedAt\": \"{{ $json.latestActivityCreatedAt }}\",\n  \"createdViaId\": \"{{ $json.createdViaId }}\",\n  \"createdViaName\": \"{{ $json.createdViaName }}\",\n  \"createdViaType\": \"{{ $json.createdViaType }}\",\n  \"updatedViaId\": \"{{ $json.updatedViaId }}\",\n  \"updatedViaName\": \"{{ $json.updatedViaName }}\",\n  \"updatedViaType\": \"{{ $json.updatedViaType }}\",\n  \"customFieldValues\": {\n    \"cfSubSourceMultiPicklist\": [2819961],\n    \"cfLeadType\": [{{ $('Code in JavaScript22').item.json.id }}]\n  },\n  \"score\": 0,\n  \"facebook\": null,\n  \"twitter\": null,\n  \"linkedIn\": null,\n  \"companyWebsite\": null\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        976,
+        1648
+      ],
+      "id": "cb1eafd4-f82c-4af4-b4c7-b956aca991ef",
+      "name": "update lead details from the form1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "content": "## 4th flow",
+        "height": 256,
+        "width": 1776
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        1328
+      ],
+      "typeVersion": 1,
+      "id": "1f2d585e-a645-4dc7-85c6-9e65028b2be4",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## notes flow continue (1st)",
+        "height": 208,
+        "width": 1680
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        176
+      ],
+      "id": "7080aab4-4dd7-4edd-b0ba-d6eafbdab49f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 2nd",
+        "height": 208,
+        "width": 1696
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        400
+      ],
+      "id": "cf766694-4084-4b7a-8698-f499a62461e3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## 3rd",
+        "height": 208,
+        "width": 1696
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        624
+      ],
+      "id": "ce5f9e7c-c83b-4c3c-b99f-c7c7aa8bc59d",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"CONTACT\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        976,
+        1424
+      ],
+      "id": "d98a28f1-bc3d-453e-81ac-51c81d96e4f9",
+      "name": "search",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "ceb3751d-a4f0-43ce-ba37-38399c1db2b2",
+      "name": "Code in JavaScript38",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        0
+      ],
+      "id": "812e0fc9-9097-4f69-abcb-fad65b89a359",
+      "name": "Date & Time3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentDate = $input.first().json.currentDate;\n\n// Convert to UTC\nconst utcDate = new Date(currentDate).toISOString();\n\nreturn {\n  original: currentDate,\n  utc: utcDate\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        0
+      ],
+      "id": "9cb392d2-c0ef-41c1-95db-45df09b33c50",
+      "name": "Code in JavaScript39",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 77335,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 76767\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        0
+      ],
+      "id": "83324f11-079e-4fa9-827f-ce8308ab12bb",
+      "name": "Code in JavaScript40",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        0
+      ],
+      "id": "cf8a58c1-e7ce-414d-b647-863329880773",
+      "name": "Code in JavaScript41",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "d1da8da8-d5aa-4f4f-99f7-f644d5a57647",
+      "name": "search for lead2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 12
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "3b7fef31-26de-414c-a5b0-dd2d89311ff7",
+      "name": "Wait6",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/call-logs/{{ $('search call log with ID for lead ').item.json.content[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('Code in JavaScript41').item.json.outcome }}\",\n  \"startTime\": \"{{ $('Code in JavaScript39').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript38').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead').item.json.content[0].values[0].id }},\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1184,
+        976
+      ],
+      "id": "38a0ac67-089f-4a0e-962b-a8d9ca8f3cd1",
+      "name": "update recording to call log1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('Code in JavaScript41').item.json.outcome }}\",\n  \"ownerId\": \"{{ $json.user_id }}\",\n  \"startTime\": \"{{ $('Code in JavaScript39').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript38').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead2').item.json.content[0].values[0].id }},\n    \"name\": \"{{ $('search for lead2').item.json.content[0].values[0].firstName }} {{ $('search for lead2').item.json.content[0].values[0].lastName }}\",\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead2').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2576,
+        0
+      ],
+      "id": "ec392f0a-d415-4c00-9dbc-d150bd084dfe",
+      "name": "create call log with call id on lead2",
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body[0].emp_number; // adjust field name if different\n\nconst validNumbers = [+910000000000, +910000000000, +910000000000,+910000000000];\n\nreturn [\n  {\n    json: {\n      result: validNumbers.includes(Number(input)) ? \"yes\" : \"no\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5952,
+        1568
+      ],
+      "id": "2bfb060f-f327-4452-a027-5c64a60237f8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5872,
+        1168
+      ],
+      "id": "76ce56c3-d4b8-447c-9b92-3173184fcf7c",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.totalElements }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5056,
+        1568
+      ],
+      "id": "a48190bb-31d8-4095-a3e4-ff2088b1d0cd",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4832,
+        1472
+      ],
+      "id": "62d2ddb5-d4be-4636-b92b-98d1edcbd9b6",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -4608,
+        1472
+      ],
+      "id": "4fc71c47-66bd-4ef3-aaae-05a73298d692",
+      "name": "Date & Time4"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.kylas.io/v1/call-logs/{{ $('search call log with ID for lead 1').item.json.content[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $json.outcome }}\",\n  \"startTime\": \"{{ $('Code in JavaScript13').item.json.utc_time }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript7').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead3').item.json.content[0].values[0].id }},\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead3').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3712,
+        1664
+      ],
+      "id": "bfd1dadf-6009-41e5-be36-b3caf7138922",
+      "name": "update recording to call log2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the value safely\nconst text = $('Webhook').first().json.body[0].call_logs[0].call_type;\n\n// 2. Normalize value (avoid crash if undefined/null)\nconst normalized = (text || '').toLowerCase();\n\n// 3. Apply logic\nlet result;\n\nif (normalized === 'incoming' || normalized === 'outgoing') {\n  result = normalized;\n} else if (normalized === 'missed' || normalized === 'rejected') {\n  result = 'incoming';\n} else {\n  result = normalized; // fallback (optional)\n}\n\n// 4. Return in n8n format\nreturn [{\n  json: {\n    call_type_lower: result\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4608,
+        1664
+      ],
+      "id": "4be871e8-1a7d-4d37-8248-c28adcdf3b6e",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Webhook').first().json.body[0].call_logs[0].synced_at;\n\n// Convert to ISO format first\nconst isoString = input.replace(\" \", \"T\") + \"+05:30\";\n\nconst utcTime = new Date(isoString).toISOString();\n\nreturn {\n  utc_time: utcTime\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4160,
+        1664
+      ],
+      "id": "a9d72ad8-7460-4426-8d62-12aecec28285",
+      "name": "Code in JavaScript13"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -4384,
+        1664
+      ],
+      "id": "0f6dc0f8-a8e6-4784-9636-3c1508280335",
+      "name": "Date & Time5"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -4832,
+        1664
+      ],
+      "id": "6353b354-4059-47c8-81fb-2cec512c66ed",
+      "name": "Wait2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"outcome\": \"{{ $('Code in JavaScript16').item.json.outcome }}\",\n  \"ownerId\": \"{{ $json.user_id }}\",\n  \"startTime\": \"{{ $('Code in JavaScript14').item.json.utc }}\",\n  \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\",\n  \"callType\": \"{{ $('Code in JavaScript6').item.json.call_type_lower }}\",\n  \"duration\": \"{{ $('Webhook').item.json.body[0].call_logs[0].duration }}\",\n  \"relatedTo\": {\n    \"id\": {{ $('search for lead3').item.json.content[0].values[0].id }},\n    \"name\": \"{{ $('search for lead3').item.json.content[0].values[0].firstName }} {{ $('search for lead3').item.json.content[0].values[0].lastName }}\",\n    \"entity\": \"lead\",\n    \"phoneNumber\": \"{{ $('Webhook').item.json.body[0].call_logs[0].client_number }}\"\n  },\n  \"callRecording\": {\n    \"fileName\": \"{{ $('search for lead3').item.json.content[0].values[0].id }}.mp3\",\n    \"url\": \"{{ $('Webhook').item.json.body[0].call_logs[0].call_recording_url }}\"\n  },\n  \"customFieldValues\": {\n    \"cfCallLogID\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3712,
+        1472
+      ],
+      "id": "9529ea59-5c47-48fc-979b-7f63ac6cb388",
+      "name": "create call log with call id on lead3",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/call-logs/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "10"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt,desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonRule\": {\n    \"condition\": \"AND\",\n    \"rules\": [\n      {\n        \"operator\": \"equal\",\n        \"id\": \"cfCallLogID\",\n        \"field\": \"customFieldValues.cfCallLogID\",\n        \"type\": \"string\",\n        \"value\": \"{{ $('Webhook').item.json.body[0].call_logs[0].id }}\"\n      }\n    ],\n    \"valid\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5280,
+        1568
+      ],
+      "id": "1e4f320a-4796-4a31-aa3e-f0bf9928ad1e",
+      "name": "search call log with ID for lead 1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentDate = $input.first().json.currentDate;\n\n// Convert to UTC\nconst utcDate = new Date(currentDate).toISOString();\n\nreturn {\n  original: currentDate,\n  utc: utcDate\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4384,
+        1472
+      ],
+      "id": "d8a49dc8-14b2-4f4e-969d-cc788c677f67",
+      "name": "Code in JavaScript14"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267,\n  \"+910000000000\": 81653,\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3936,
+        1472
+      ],
+      "id": "37c9fdad-42b0-4a99-a67b-9f558007185d",
+      "name": "Code in JavaScript15"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4160,
+        1472
+      ],
+      "id": "5da24289-bd08-4f82-bd16-5d38583a8866",
+      "name": "Code in JavaScript16"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get values from previous node\nconst callType = $('Webhook').first().json.body[0].call_logs[0].call_type;\nconst duration = Number($('Webhook').first().json.body[0].call_logs[0].duration); // ensure it's treated as number\n\nlet outcome;\n\n// Conditional logic\nif (callType === \"Outgoing\" && duration === 0) {\n  outcome = \"no_answer\";\n} \nelse if (callType === \"Incoming\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Outgoing\") {\n  outcome = \"connected\";\n} \nelse if (callType === \"Missed\") {\n  outcome = \"missed_call\";\n} \nelse if (callType === \"Rejected\") {\n  outcome = \"rejected\";\n} \nelse {\n  outcome = \"unknown\";\n}\n\n// Return result\nreturn [\n  {\n    json: {\n      outcome: outcome\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3936,
+        1664
+      ],
+      "id": "b088cb16-0450-4828-849f-44a8e6b8dee6",
+      "name": "Code in JavaScript18"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead3').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3264,
+        1472
+      ],
+      "id": "32d2dae9-acd7-42e2-8161-a8655713de28",
+      "name": "HTTP Request2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead3').item.json.content[0].values[0].id }}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3264,
+        1664
+      ],
+      "id": "3043d7bc-4da7-4fa4-b394-885094e99326",
+      "name": "HTTP Request3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3488,
+        1472
+      ],
+      "id": "bed9fa25-8d73-4f13-ad9b-e764ab6032ab",
+      "name": "Wait8"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3488,
+        1664
+      ],
+      "id": "28caab89-a952-4585-8290-867b7e401df1",
+      "name": "Wait9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Constant to compare\nconst CONSTANT_VALUE = 2819961;\n\n// 2. Get array input safely\nconst inputArray = $('HTTP Request2').first().json.customFieldValues.cfSubSourceMultiPicklist || [];\n// 3. Normalize values (handle string/number mix)\nconst normalizedArray = inputArray.map(v => Number(v));\n\n// 4. Check if any value matches\nconst hasMatch = normalizedArray.includes(CONSTANT_VALUE);\n\n// 5. Result\nconst result = hasMatch ? \"no\" : 2819961;\n\n// 6. Return\nreturn [\n  {\n    json: {\n      result: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3040,
+        1472
+      ],
+      "id": "cf0418c7-8874-4aef-966e-2d67c6635841",
+      "name": "Code in JavaScript26"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2816,
+        1472
+      ],
+      "id": "7ca9c298-f913-40c6-aeba-7f4dfd203a51",
+      "name": "If11"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead3').item.json.content[0].values[0].id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json-patch+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=[\n  {\n    \"op\": \"add\",\n    \"path\": \"/customFieldValues/cfSubSourceMultiPicklist/-\",\n    \"value\": {{ $json.result }}\n  }\n]",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2592,
+        1472
+      ],
+      "id": "75ca61e6-f6c7-4576-823d-9c4e57d97d83",
+      "name": "update lead details from the form4",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Constant to compare\nconst CONSTANT_VALUE = 2819961;\n\n// 2. Get array input safely\nconst inputArray = $('HTTP Request3').first().json.customFieldValues.cfSubSourceMultiPicklist || [];\n// 3. Normalize values (handle string/number mix)\nconst normalizedArray = inputArray.map(v => Number(v));\n\n// 4. Check if any value matches\nconst hasMatch = normalizedArray.includes(CONSTANT_VALUE);\n\n// 5. Result\nconst result = hasMatch ? \"no\" : 2819961;\n\n// 6. Return\nreturn [\n  {\n    json: {\n      result: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3040,
+        1664
+      ],
+      "id": "3a5cfcdc-00c7-472a-ba56-d1f564f983f9",
+      "name": "Code in JavaScript29"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2816,
+        1664
+      ],
+      "id": "1f5efe67-9867-42e2-b403-0a1e3d68579c",
+      "name": "If12"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.kylas.io/v1/leads/{{ $('search for lead3').item.json.content[0].values[0].id }}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json-patch+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=[\n  {\n    \"op\": \"add\",\n    \"path\": \"/customFieldValues/cfSubSourceMultiPicklist/-\",\n    \"value\": {{ $json.result }}\n  }\n]",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2592,
+        1664
+      ],
+      "id": "9b739f85-fe0b-4cde-8e02-2d285c7229c8",
+      "name": "update lead details from the form7",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5504,
+        1568
+      ],
+      "id": "afee21f6-b2ab-46b3-a68c-e7f77ec9ac52",
+      "name": "search for lead3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $('Webhook').item.json.body[0].call_logs[0].note }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5504,
+        1856
+      ],
+      "id": "48fdb3d1-fe45-4503-a768-0090d08fb50d",
+      "name": "If13"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5056,
+        1856
+      ],
+      "id": "566844b5-0f2d-460c-bae8-cd27b8dd5182",
+      "name": "search3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/notes/relation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-GB,en-US;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"macOS\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sourceEntity\": {\n    \"description\": \"<div><span style=\\\"color:rgb(46,56,77);\\\">{{ $('Webhook').item.json.body[0].call_logs[0].note.replace(/\\n/g, ' ').trim() }}</span></div>\",\n    \"mentions\": null,\n    \"ownerId\": {{ $('number to owner id mapping3').item.json.user_id }}\n  },\n  \"targetEntityId\": \"{{ $json.content[0].values[0].id }}\",\n  \"targetEntityType\": \"LEAD\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4832,
+        1856
+      ],
+      "id": "300ede3d-882c-4bae-9af4-7a85974c40e6",
+      "name": "update note on lead1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = {\n  \"+910000000000\": 76896,\n  \"+910000000000\": 76907,\n  \"+910000000000\": 76904,\n  \"+910000000000\": 76906,\n  \"+910000000000\": 77350,\n  \"+910000000000\": 76897,\n  \"+910000000000\": 76898,\n  \"+910000000000\": 77332,\n  \"+910000000000\": 77333,\n  \"+910000000000\": 76830,\n  \"+910000000000\": 77336,\n  \"+910000000000\": 79892,\n  \"+910000000000\": 77334,\n  \"+910000000000\": 79887,\n  \"+910000000000\": 79890,\n  \"+910000000000\": 76767,\n  \"+910000000000\": 80269,\n  \"+910000000000\": 80266,\n  \"+910000000000\": 80267,\n  \"+910000000000\": 81653\n\n};\n\n// Get mobile from webhook\nconst mobile = String($('Webhook').first().json.body[0].emp_number);\n\n// Lookup\nconst userId = users[mobile] || null;\n\n// RETURN MUST BE OBJECT\nreturn [\n  {\n    json: {\n      user_id: userId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5280,
+        1856
+      ],
+      "id": "38589bf4-78fa-463e-a1d3-2729cfc3b160",
+      "name": "number to owner id mapping3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/search/global-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,as;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://app.kylas.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://app.kylas.io/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $('Webhook').item.json.body[0].call_logs[0].client_number }},\n  \"entities\": [\n    \"LEAD\"\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5296,
+        592
+      ],
+      "id": "af49f616-df5c-4e62-96a6-56faab3b942d",
+      "name": "search for lead4",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "leftValue": "={{ $('Webhook').item.json.body[0].emp_number }}",
+              "rightValue": "=+910000000000",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5856,
+        832
+      ],
+      "id": "a1934112-41ae-44cb-bc66-947221e20fbe",
+      "name": "If14"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "number to owner id mapping1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "search for lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search2": {
+      "main": [
+        [
+          {
+            "node": "update note on lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create lead": {
+      "main": [
+        [
+          {
+            "node": "for lambda function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Date & Time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Date & Time2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update recording to call log": {
+      "main": [
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search call log with ID for lead ": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log with call id on lead": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for lead": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "search call log with ID for lead ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "create call log with call id on lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript11": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript12": {
+      "main": [
+        [
+          {
+            "node": "update recording to call log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "utc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for lead1": {
+      "main": [
+        [
+          {
+            "node": "call type to lower case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "number to owner id mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript25",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript28",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript25": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [],
+        [
+          {
+            "node": "update lead details from the form3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript28": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [],
+        [
+          {
+            "node": "update lead details from the form6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript32": {
+      "main": [
+        [
+          {
+            "node": "If10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If10": {
+      "main": [
+        [
+          {
+            "node": "muber to owner id",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "fetch full lead data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to owner id mapping": {
+      "main": [
+        [
+          {
+            "node": "search2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to owner id mapping1": {
+      "main": [
+        [
+          {
+            "node": "number to team mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to team mapping": {
+      "main": [
+        [
+          {
+            "node": "team to leadtype id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "team to leadtype id": {
+      "main": [
+        [
+          {
+            "node": "create lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "for lambda function": {
+      "main": [
+        [
+          {
+            "node": "search for lead1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call type to lower case": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "utc": {
+      "main": [
+        [
+          {
+            "node": "call status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call status": {
+      "main": [
+        [
+          {
+            "node": "number to owner id ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to owner id ": {
+      "main": [
+        [
+          {
+            "node": "create call log with call id on lead1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch full lead data": {
+      "main": [
+        [
+          {
+            "node": "number to owner id mapping2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to owner id mapping2": {
+      "main": [
+        [
+          {
+            "node": "number to tem mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to tem mapping": {
+      "main": [
+        [
+          {
+            "node": "team to leadtype id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "team to leadtype id1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript32",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "muber to owner id": {
+      "main": [
+        [
+          {
+            "node": "number to team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to team": {
+      "main": [
+        [
+          {
+            "node": "team to leadtype id2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "team to leadtype id2": {
+      "main": [
+        [
+          {
+            "node": "create lead1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search4": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "update note on contact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update recording to contact1": {
+      "main": [
+        [
+          {
+            "node": "search call log with ID contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search5": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "search call log with ID contact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "create call log with call id on contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search call log with ID contact1": {
+      "main": [
+        [
+          {
+            "node": "update recording to contact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log with call id on contact": {
+      "main": [
+        [
+          {
+            "node": "search for deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for a contact": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "create call log on deal with call log id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for deal": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log on deal with call log id": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "create call log on deal with call log id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript9": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log on deal with call log id1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search call log with ID contact": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "update note on contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for deal1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update note on contact": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update note on contact1": {
+      "main": [
+        [
+          {
+            "node": "search for deal1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "create call log with call id on contact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log with call id on contact1": {
+      "main": [
+        [
+          {
+            "node": "search for deal2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for a contact1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "create call log on deal with call log id2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript17": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for deal2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log on deal with call log id2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript38": {
+      "main": [
+        [
+          {
+            "node": "Date & Time3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript39",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript39": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript41",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript40": {
+      "main": [
+        [
+          {
+            "node": "create call log with call id on lead2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript41": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript40",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for lead2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript38",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "search for lead2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "search for lead3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Date & Time4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update recording to call log2": {
+      "main": [
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Date & Time5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript13": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create call log with call id on lead3": {
+      "main": [
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search call log with ID for lead 1": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript14": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript15": {
+      "main": [
+        [
+          {
+            "node": "create call log with call id on lead3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript16": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript18": {
+      "main": [
+        [
+          {
+            "node": "update recording to call log2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript26",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript29",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait9": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript26": {
+      "main": [
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If11": {
+      "main": [
+        [],
+        [
+          {
+            "node": "update lead details from the form4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript29": {
+      "main": [
+        [
+          {
+            "node": "If12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If12": {
+      "main": [
+        [],
+        [
+          {
+            "node": "update lead details from the form7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search for lead3": {
+      "main": [
+        [
+          {
+            "node": "search call log with ID for lead 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search3": {
+      "main": [
+        [
+          {
+            "node": "update note on lead1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "number to owner id mapping3": {
+      "main": [
+        [
+          {
+            "node": "search3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If13": {
+      "main": [
+        [],
+        [
+          {
+            "node": "number to owner id mapping3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If14": {
+      "main": [
+        [],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  }
+}

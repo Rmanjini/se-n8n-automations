@@ -1,0 +1,192 @@
+{
+  "name": "Kylas Self-Form Lead Import",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kylas-self-form",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b4fe63b6-b3c1-47e2-ac67-36d27295fa66",
+      "name": "Webhook - Receive from Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Kylas Self-Form — Translate form payload → Kylas API schema (double-quoted version)\n\nconst input = $input.first().json;\n\nlet form;\nif (input.body && typeof input.body === \"object\") form = input.body;\nelse if (input.body && typeof input.body === \"string\") {\n  try { form = JSON.parse(input.body); }\n  catch (e) { throw new Error(\"Invalid JSON in webhook body: \" + e.message); }\n} else form = input;\n\nconst lead = form.lead || {};\nconst log  = form.log  || {};\nconst meta = form.meta || {};\n\nconst phone0 = (lead.phoneNumbers && lead.phoneNumbers[0]) || {};\nif (!phone0.value)                                              throw new Error(\"Missing phone number\");\nif (!lead.source || !lead.source.id)                            throw new Error(\"Missing source\");\nif (!lead.leadType || !lead.leadType.id)                        throw new Error(\"Missing lead type\");\nif (!Array.isArray(lead.subSources) || !lead.subSources.length) throw new Error(\"Missing sub source\");\nif (!lead.ownerId)                                              throw new Error(\"Missing owner\");\n\nfunction toProperCase(s) {\n  return String(s || \"\").split(/\\s+/).filter(Boolean)\n    .map(function(w){ return w[0].toUpperCase() + w.slice(1).toLowerCase(); }).join(\" \");\n}\nfunction cleanNotes(s) {\n  return String(s || \"\").replace(/[\\r\\n\\t]+/g, \" \").replace(/ {2,}/g, \" \").trim();\n}\nfunction cleanDigits(s) {\n  return String(s || \"\").replace(/[^0-9]/g, \"\");\n}\nfunction nonEmpty(s) {\n  return s != null && String(s).trim().length > 0;\n}\n\nconst fullNameInput = (log.full_name_input || log.full_name_final || \"\").trim();\nconst firstName = fullNameInput ? toProperCase(fullNameInput) : \"Eagle\";\nconst leadTypeCode = String(log.leadtype_code || log.leadtype_name || \"LEAD\")\n  .toUpperCase().replace(/\\s+/g, \" \").trim();\nconst lastName = leadTypeCode + \" SELF IMPORT FORM\";\n\nconst now = new Date();\nconst ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));\nconst months = [\"Jan\",\"Feb\",\"Mar\",\"Apr\",\"May\",\"Jun\",\"Jul\",\"Aug\",\"Sep\",\"Oct\",\"Nov\",\"Dec\"];\nconst pad = function(n){ return String(n).padStart(2, \"0\"); };\nconst h24 = ist.getUTCHours();\nconst h12 = h24 % 12 || 12;\nconst ampm = h24 >= 12 ? \"PM\" : \"AM\";\nconst timestampIst = pad(ist.getUTCDate()) + \"-\" + months[ist.getUTCMonth()] + \"-\" + ist.getUTCFullYear()\n                   + \" \" + pad(h12) + \":\" + pad(ist.getUTCMinutes()) + \" \" + ampm + \" IST\";\n\n// customFieldValues — always include required, conditional optionals\nconst customFieldValues = {\n  cfLeadType:               [ +lead.leadType.id ],\n  cfSubSourceMultiPicklist: lead.subSources.map(function(ss){ return +ss.id; })\n};\nif (nonEmpty(lead.city)) customFieldValues.cfCity = String(lead.city).trim();\nconst notes = cleanNotes(lead.cfNotesFromLeadImport);\nif (notes) customFieldValues.cfNotesFromLeadImport = notes;\n\n// Main Kylas payload\nconst kylasPayload = {\n  firstName: firstName,\n  lastName: lastName,\n  phoneNumbers: [{\n    type: \"MOBILE\",\n    code: log.country_iso || \"IN\",\n    value: cleanDigits(phone0.value),\n    dialCode: phone0.dialCode || \"+91\",\n    primary: true\n  }],\n  source:  +lead.source.id,\n  ownerId: +lead.ownerId,\n  customFieldValues: customFieldValues\n};\n\n// Optional top-level UTM fields — omit if empty\nif (nonEmpty(lead.utmSource))   kylasPayload.utmSource   = String(lead.utmSource);\nif (nonEmpty(lead.utmMedium))   kylasPayload.utmMedium   = String(lead.utmMedium);\nif (nonEmpty(lead.utmCampaign)) kylasPayload.utmCampaign = String(lead.utmCampaign);\nif (nonEmpty(lead.utmContent))  kylasPayload.utmContent  = String(lead.utmContent);\nif (nonEmpty(lead.utmTerm))     kylasPayload.utmTerm     = String(lead.utmTerm);\n\n// Optional emails — omit entirely if blank\nif (lead.emails && lead.emails[0] && nonEmpty(lead.emails[0].value)) {\n  kylasPayload.emails = [{\n    type: \"OFFICE\",\n    value: String(lead.emails[0].value).trim().toLowerCase(),\n    primary: true\n  }];\n}\n\nreturn [{\n  json: {\n    kylasPayload: kylasPayload,\n    formPayload: form,\n    timestampIst: timestampIst\n  }\n}];"
+      },
+      "id": "06fec593-a986-455f-b316-cb5cdcd621bc",
+      "name": "Translate to Kylas Schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/leads/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.kylasPayload) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "575fe02b-84d9-498c-b272-18c718b4741c",
+      "name": "Create Lead in Kylas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ──────────────────────────────────────────────────────────────────\n// Build Sheet Log Payload — detect Kylas success/failure, enrich the\n// original form payload with `kylas_result` block so Apps Script can\n// write a proper row (real lead ID + link, or failure + error message).\n// ──────────────────────────────────────────────────────────────────\n\nconst prev = $('Translate to Kylas Schema').first().json;\nconst resp = $input.first().json;\n\nconst statusCode = resp.statusCode || 0;\nconst body = resp.body || {};\n\nlet kylasResult;\nif (statusCode >= 200 && statusCode < 300 && body && body.id) {\n  kylasResult = {\n    status: 'Success',\n    kylas_lead_id: String(body.id),\n    kylas_lead_link: `https://app.kylas.io/sales/leads/details/${body.id}`,\n    timestamp_ist: prev.timestampIst,\n    error_message: ''\n  };\n} else {\n  // Extract best-available Kylas error message for humans + audit\n  let errMsg;\n  if (body && typeof body === 'object') {\n    errMsg = body.message || (body.error && (body.error.message || JSON.stringify(body.error))) || JSON.stringify(body);\n  } else if (typeof body === 'string' && body.length) {\n    errMsg = body;\n  } else {\n    errMsg = 'No response body from Kylas';\n  }\n  // Cap length to keep sheet cell readable\n  errMsg = String(errMsg).slice(0, 500);\n  kylasResult = {\n    status: 'Failed',\n    kylas_lead_id: '',\n    kylas_lead_link: '',\n    timestamp_ist: prev.timestampIst,\n    error_message: `HTTP ${statusCode}: ${errMsg}`\n  };\n}\n\n// Enrich original form payload with kylas_result — Apps Script reads this\n// to decide real-ID-row vs STUB-row behaviour.\nconst enriched = Object.assign({}, prev.formPayload, { kylas_result: kylasResult });\n\nreturn [{ json: { sheetPayload: enriched, kylasResult: kylasResult } }];\n"
+      },
+      "id": "424275fa-46a3-415e-9033-426812e328fd",
+      "name": "Build Sheet Log Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/plain;charset=utf-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.sheetPayload) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "0d4117e7-e056-43c3-b297-6f6613889bb5",
+      "name": "Write Row to Submissions Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: $('Build Sheet Log Payload').first().json.kylasResult.status === 'Success' ? 'success' : 'error', kylas_lead_id: $('Build Sheet Log Payload').first().json.kylasResult.kylas_lead_id, error_message: $('Build Sheet Log Payload').first().json.kylasResult.error_message || '' }) }}",
+        "options": {}
+      },
+      "id": "a557f151-a51e-4d75-8b78-79e178eb4e19",
+      "name": "Respond to Form",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive from Form": {
+      "main": [
+        [
+          {
+            "node": "Translate to Kylas Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate to Kylas Schema": {
+      "main": [
+        [
+          {
+            "node": "Create Lead in Kylas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead in Kylas": {
+      "main": [
+        [
+          {
+            "node": "Build Sheet Log Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sheet Log Payload": {
+      "main": [
+        [
+          {
+            "node": "Write Row to Submissions Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Row to Submissions Log": {
+      "main": [
+        [
+          {
+            "node": "Respond to Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

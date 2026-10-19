@@ -1,0 +1,521 @@
+{
+  "name": "post Meeting DM kylas -n8n -dt",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://api.kylas.io/v1/leads/{{ $json.attendee }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -592,
+        256
+      ],
+      "id": "c4a57a45-b307-4cfb-92d0-5a69a20485de",
+      "name": "fetch full lead data",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bothook.io/v1/public/triggers/webhooks/00000000-0000-0000-0000-000000000000",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "full name",
+              "value": "={{ $json.firstName }}"
+            },
+            {
+              "name": "phone number",
+              "value": "={{ $json.phoneNumber }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        80
+      ],
+      "id": "4c8a9759-4566-4cf5-9348-66c0b2ec7050",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.meeting.title }}",
+                    "rightValue": "15 Minute Roadmap Call - Social Eagle - DM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "00000000-0000-0000-0000-000000000000"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.meeting.title }}",
+                    "rightValue": "Expert Call with Social Eagle - Digital Marketing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.meeting.title }}",
+                    "rightValue": "15 Minute Roadmap Call - Social Eagle - AI",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AI"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "leftValue": "={{ $json.meeting.title }}",
+                    "rightValue": "Expert Call with Social Eagle - AI",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AI"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        224
+      ],
+      "id": "705d393e-977f-458d-a0c1-8a6a55fdf059",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitMinutes }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "ac7517c9-6b43-4f4c-9b8d-351de8f809be",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitMinutes }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        160
+      ],
+      "id": "4a83269a-b894-4323-8066-1eea90ae3532",
+      "name": "Wait1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Calculate wait minutes until 7 AM IST NEXT DAY after meeting\n\n// ─── Pull data from \"format data\" node ───\nconst raw = $('format data').first().json;\nconst source = Array.isArray(raw) ? raw[0] : raw;\nconst firstName   = source.client.firstName;\nconst phoneNumber = source.client.phoneNumber;\n\nconst data = $input.first().json;\nconst meetingUTC = data.meeting.scheduledAtUTC;\n\n// Parse meeting time\nconst meetingDate = new Date(meetingUTC);\n\n// ─── Get meeting date in IST ───\nconst meetingDateIST = new Date(meetingDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));\nconst istYear  = meetingDateIST.getFullYear();\nconst istMonth = meetingDateIST.getMonth();\nconst istDay   = meetingDateIST.getDate();\n\n// ─── Next day 7 AM IST = Next day 01:30 AM UTC ───\nconst nextDay7AM_IST_inUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1, 1, 30, 0));\n// istDay + 1 → next day | 01:30 UTC = 07:00 IST\n\n// ─── Current time ───\nconst now = new Date();\n\n// ─── Calculate difference in minutes ───\nconst diffMs      = nextDay7AM_IST_inUTC.getTime() - now.getTime();\nconst diffMinutes = Math.round(diffMs / (1000 * 60));\n\n// ─── Safety check ───\nif (diffMinutes <= 0) {\n  throw new Error(`⚠️ 7 AM IST next day has already passed! Diff: ${diffMinutes} mins`);\n}\n\n// ─── Format for readability ───\nconst hours   = Math.floor(diffMinutes / 60);\nconst minutes = diffMinutes % 60;\n\nreturn [{\n  json: {\n    // ── Client info from \"format data\" ──\n    firstName,\n    phoneNumber,\n    // ── Map this to your Wait node ──\n    waitMinutes: diffMinutes,\n    // ── For reference ──\n    debug: {\n      meetingDateIST:        meetingDateIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_IST:    nextDay7AM_IST_inUTC.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_UTC:    nextDay7AM_IST_inUTC.toISOString(),\n      currentTime_IST:       now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      currentTime_UTC:       now.toISOString(),\n      waitHours:             hours,\n      waitMinutesRemainder:  minutes,\n      humanReadable:         `Wait ${hours} hours and ${minutes} minutes`,\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        160
+      ],
+      "id": "da52c9c0-ec12-4c14-bf5f-a31ecd3c564c",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitMinutes }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        416
+      ],
+      "id": "4333d884-52b2-4f88-9388-8be5fc12b61a",
+      "name": "Wait2"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitMinutes }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        608
+      ],
+      "id": "7e999a8e-5514-4f9b-9727-f5d062d74635",
+      "name": "Wait3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code in JavaScript5 — extract attendee + pass meeting data forward\nconst webhookJson = $input.first().json;\nconst invitees = webhookJson.query.Invitees;\nconst longest = invitees.reduce((a, b) => a.length >= b.length ? a : b);\n\nreturn [{\n  json: {\n    attendee: longest,\n    _meetingQuery: webhookJson.query,       // ← carry meeting data forward\n    _webhookUrl: webhookJson.webhookUrl,\n    _executionMode: webhookJson.executionMode,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        256
+      ],
+      "id": "fa0937a4-cd96-40be-a65f-9ae11315fa8b",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Merge Kylas Meeting Webhook + Lead Data\nconst meetingData = $('kylas meeting webhook').first().json;\nconst leadData = $input.first().json;\n\n// Helper\nconst get = (obj, path, fallback = \"N/A\") =>\n  path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : null), obj) ?? fallback;\n\n// ─── MEETING WEBHOOK DATA (from \"kylas meeting webhook\" node) ───\nconst query = meetingData.query || {};\n\nconst meetingStatus     = query['Status']       || \"N/A\";\nconst meetingTitle      = query['Title']         || \"N/A\";\nconst meetingConductedBy = query['Conducted By'] || \"N/A\";\nconst meetingZoomId     = query['Zoom ID']       || \"N/A\";\nconst meetingInvitees   = Array.isArray(query['Invitees']) \n                            ? query['Invitees'].join(', ') \n                            : query['Invitees'] || \"N/A\";\nconst meetingFromRaw    = query['From']          || null;\n\n// Parse meeting time & compute trigger time (+2 hours)\nconst meetingFromDate   = meetingFromRaw ? new Date(meetingFromRaw) : null;\nconst triggerAt2Hours   = meetingFromDate \n                            ? new Date(meetingFromDate.getTime() + 2 * 60 * 60 * 1000) \n                            : null;\n\nconst meetingFromIST    = meetingFromDate \n                            ? meetingFromDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) \n                            : \"N/A\";\nconst triggerAtIST      = triggerAt2Hours \n                            ? triggerAt2Hours.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) \n                            : \"N/A\";\n\nconst webhookUrl        = meetingData.webhookUrl  || \"N/A\";\nconst executionMode     = meetingData.executionMode || \"N/A\";\n\n// ─── LEAD DATA (from current/previous node) ───\nconst cf      = leadData.customFieldValues || {};\nconst idStore = leadData.metaData?.idNameStore || {};\n\n// Identity\nconst firstName   = get(leadData, 'firstName');\nconst lastName    = get(leadData, 'lastName');\nconst fullName    = `${firstName} ${lastName}`;\n\n// Phone\nconst primaryPhone  = leadData.phoneNumbers?.find(p => p.primary) || leadData.phoneNumbers?.[0];\nconst phoneWithCode = primaryPhone ? `${primaryPhone.dialCode}${primaryPhone.value}` : \"N/A\";\n\n// Email\nconst primaryEmail = leadData.emails?.find(e => e.primary) || leadData.emails?.[0];\nconst email        = primaryEmail?.value || \"N/A\";\n\n// Lead Info\nconst leadType   = idStore.cfLeadType \n                     ? Object.values(idStore.cfLeadType).join(', ') \n                     : \"N/A\";\nconst source     = idStore.source \n                     ? Object.values(idStore.source).join(', ') \n                     : \"N/A\";\nconst subSources = idStore.cfSubSourceMultiPicklist \n                     ? Object.values(idStore.cfSubSourceMultiPicklist).join(', ') \n                     : \"N/A\";\nconst bestTimeToCall = idStore.cfWhatIsTheBestTimeToCallYou \n                         ? Object.values(idStore.cfWhatIsTheBestTimeToCallYou).join(', ') \n                         : \"N/A\";\nconst canAttendZoom  = idStore.cfConfirmIfYouCanAttendZoomVideoCallOnTime \n                         ? Object.values(idStore.cfConfirmIfYouCanAttendZoomVideoCallOnTime).join(', ') \n                         : \"N/A\";\nconst owner          = idStore.ownerId \n                         ? Object.values(idStore.ownerId).join(', ') \n                         : \"N/A\";\n\n// UTM\nconst utm = {\n  source:   get(leadData, 'utmSource'),\n  medium:   get(leadData, 'utmMedium'),\n  campaign: get(leadData, 'utmCampaign'),\n  term:     get(leadData, 'utmTerm'),\n  content:  get(leadData, 'utmContent'),\n};\n\n// Timestamps\nconst meetingScheduledOnRaw = leadData.meetingScheduledOn \n                                ? new Date(leadData.meetingScheduledOn) \n                                : null;\nconst meetingScheduledOnIST = meetingScheduledOnRaw \n                                ? meetingScheduledOnRaw.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) \n                                : \"N/A\";\n\n// ─── FINAL MERGED OUTPUT ───\nreturn [{\n  json: {\n\n    // ── MEETING INFO (from webhook) ──\n    meeting: {\n      title:          meetingTitle,\n      status:         meetingStatus,\n      conductedBy:    meetingConductedBy,\n      zoomId:         meetingZoomId,\n      invitees:       meetingInvitees,\n      scheduledAt:    meetingFromIST,\n      scheduledAtUTC: meetingFromRaw,\n      triggerAt:      triggerAtIST,           // 2 hours after meeting\n      triggerAtUTC:   triggerAt2Hours?.toISOString() || \"N/A\",\n      executionMode:  executionMode,\n      webhookUrl:     webhookUrl,\n    },\n\n    // ── CLIENT INFO (from lead) ──\n    client: {\n      fullName,\n      firstName,\n      lastName,\n      phoneNumber:    phoneWithCode,\n      phoneRaw:       primaryPhone?.value || \"N/A\",\n      countryCode:    primaryPhone?.dialCode || \"N/A\",\n      email,\n      city:           cf.cfCity || \"N/A\",\n      leadId:         leadData.id,\n      leadType,\n      source,\n      subSources,\n      pipelineName:   get(leadData, 'pipeline.name'),\n      pipelineStage:  get(leadData, 'pipeline.stage.name'),\n      forecastingType: get(leadData, 'forecastingType'),\n      score:          leadData.score ?? 0,\n      owner,\n    },\n\n    // ── ZOOM & CALL DETAILS ──\n    zoom: {\n      meetingLink:    cf.cfZoomMeetingLink   || \"N/A\",\n      meetingId:      cf.cfZoomMeetingId     || meetingZoomId,\n      bestTimeToCall,\n      canAttendZoom,\n    },\n\n    // ── LEAD CONTEXT ──\n    leadContext: {\n      profession:   cf.cfWhatIsYourCurrentProfessionBusiness         || \"N/A\",\n      whyLearnDM:   cf.cfWhyDoYouWantToLearnDigitalMarketing         || \"N/A\",\n      mainReason:   cf.cfTellUsTheMainReasonWhyYouWantToLearn        || \"N/A\",\n    },\n\n    // ── UTM TRACKING ──\n    utm,\n\n    // ── TIMESTAMPS ──\n    timestamps: {\n      meetingScheduledOn: meetingScheduledOnIST,\n      createdAt:          leadData.createdAt,\n      updatedAt:          leadData.updatedAt,\n      convertedAt:        leadData.convertedAt,\n    },\n\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        256
+      ],
+      "id": "400338f8-bbd4-42c3-8201-f63718569440",
+      "name": "format data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Calculate wait minutes until 7 AM IST NEXT DAY after meeting\n\n// ─── Pull data from \"format data\" node ───\nconst raw = $('format data').first().json;\nconst source = Array.isArray(raw) ? raw[0] : raw;\nconst firstName   = source.client.firstName;\nconst phoneNumber = source.client.phoneNumber;\n\nconst data = $input.first().json;\nconst meetingUTC = data.meeting.scheduledAtUTC;\n\n// Parse meeting time\nconst meetingDate = new Date(meetingUTC);\n\n// ─── Get meeting date in IST ───\nconst meetingDateIST = new Date(meetingDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));\nconst istYear  = meetingDateIST.getFullYear();\nconst istMonth = meetingDateIST.getMonth();\nconst istDay   = meetingDateIST.getDate();\n\n// ─── Next day 7 AM IST = Next day 01:30 AM UTC ───\nconst nextDay7AM_IST_inUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1, 1, 30, 0));\n// istDay + 1 → next day | 01:30 UTC = 07:00 IST\n\n// ─── Current time ───\nconst now = new Date();\n\n// ─── Calculate difference in minutes ───\nconst diffMs      = nextDay7AM_IST_inUTC.getTime() - now.getTime();\nconst diffMinutes = Math.round(diffMs / (1000 * 60));\n\n// ─── Safety check ───\nif (diffMinutes <= 0) {\n  throw new Error(`⚠️ 7 AM IST next day has already passed! Diff: ${diffMinutes} mins`);\n}\n\n// ─── Format for readability ───\nconst hours   = Math.floor(diffMinutes / 60);\nconst minutes = diffMinutes % 60;\n\nreturn [{\n  json: {\n    // ── Client info from \"format data\" ──\n    firstName,\n    phoneNumber,\n    // ── Map this to your Wait node ──\n    waitMinutes: diffMinutes,\n    // ── For reference ──\n    debug: {\n      meetingDateIST:        meetingDateIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_IST:    nextDay7AM_IST_inUTC.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_UTC:    nextDay7AM_IST_inUTC.toISOString(),\n      currentTime_IST:       now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      currentTime_UTC:       now.toISOString(),\n      waitHours:             hours,\n      waitMinutesRemainder:  minutes,\n      humanReadable:         `Wait ${hours} hours and ${minutes} minutes`,\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "80f5f95a-8fd9-4ae2-9e8a-7a4b9bb3373f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Calculate wait minutes until 7 AM IST NEXT DAY after meeting\n\n// ─── Pull data from \"format data\" node ───\nconst raw = $('format data').first().json;\nconst source = Array.isArray(raw) ? raw[0] : raw;\nconst firstName   = source.client.firstName;\nconst phoneNumber = source.client.phoneNumber;\n\nconst data = $input.first().json;\nconst meetingUTC = data.meeting.scheduledAtUTC;\n\n// Parse meeting time\nconst meetingDate = new Date(meetingUTC);\n\n// ─── Get meeting date in IST ───\nconst meetingDateIST = new Date(meetingDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));\nconst istYear  = meetingDateIST.getFullYear();\nconst istMonth = meetingDateIST.getMonth();\nconst istDay   = meetingDateIST.getDate();\n\n// ─── Next day 7 AM IST = Next day 01:30 AM UTC ───\nconst nextDay7AM_IST_inUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1, 1, 30, 0));\n// istDay + 1 → next day | 01:30 UTC = 07:00 IST\n\n// ─── Current time ───\nconst now = new Date();\n\n// ─── Calculate difference in minutes ───\nconst diffMs      = nextDay7AM_IST_inUTC.getTime() - now.getTime();\nconst diffMinutes = Math.round(diffMs / (1000 * 60));\n\n// ─── Safety check ───\nif (diffMinutes <= 0) {\n  throw new Error(`⚠️ 7 AM IST next day has already passed! Diff: ${diffMinutes} mins`);\n}\n\n// ─── Format for readability ───\nconst hours   = Math.floor(diffMinutes / 60);\nconst minutes = diffMinutes % 60;\n\nreturn [{\n  json: {\n    // ── Client info from \"format data\" ──\n    firstName,\n    phoneNumber,\n    // ── Map this to your Wait node ──\n    waitMinutes: diffMinutes,\n    // ── For reference ──\n    debug: {\n      meetingDateIST:        meetingDateIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_IST:    nextDay7AM_IST_inUTC.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_UTC:    nextDay7AM_IST_inUTC.toISOString(),\n      currentTime_IST:       now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      currentTime_UTC:       now.toISOString(),\n      waitHours:             hours,\n      waitMinutesRemainder:  minutes,\n      humanReadable:         `Wait ${hours} hours and ${minutes} minutes`,\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        416
+      ],
+      "id": "9d218168-1c3b-468e-94e6-089624d338df",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Calculate wait minutes until 7 AM IST NEXT DAY after meeting\n\n// ─── Pull data from \"format data\" node ───\nconst raw = $('format data').first().json;\nconst source = Array.isArray(raw) ? raw[0] : raw;\nconst firstName   = source.client.firstName;\nconst phoneNumber = source.client.phoneNumber;\n\nconst data = $input.first().json;\nconst meetingUTC = data.meeting.scheduledAtUTC;\n\n// Parse meeting time\nconst meetingDate = new Date(meetingUTC);\n\n// ─── Get meeting date in IST ───\nconst meetingDateIST = new Date(meetingDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));\nconst istYear  = meetingDateIST.getFullYear();\nconst istMonth = meetingDateIST.getMonth();\nconst istDay   = meetingDateIST.getDate();\n\n// ─── Next day 7 AM IST = Next day 01:30 AM UTC ───\nconst nextDay7AM_IST_inUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1, 1, 30, 0));\n// istDay + 1 → next day | 01:30 UTC = 07:00 IST\n\n// ─── Current time ───\nconst now = new Date();\n\n// ─── Calculate difference in minutes ───\nconst diffMs      = nextDay7AM_IST_inUTC.getTime() - now.getTime();\nconst diffMinutes = Math.round(diffMs / (1000 * 60));\n\n// ─── Safety check ───\nif (diffMinutes <= 0) {\n  throw new Error(`⚠️ 7 AM IST next day has already passed! Diff: ${diffMinutes} mins`);\n}\n\n// ─── Format for readability ───\nconst hours   = Math.floor(diffMinutes / 60);\nconst minutes = diffMinutes % 60;\n\nreturn [{\n  json: {\n    // ── Client info from \"format data\" ──\n    firstName,\n    phoneNumber,\n    // ── Map this to your Wait node ──\n    waitMinutes: diffMinutes,\n    // ── For reference ──\n    debug: {\n      meetingDateIST:        meetingDateIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_IST:    nextDay7AM_IST_inUTC.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      targetDateTime_UTC:    nextDay7AM_IST_inUTC.toISOString(),\n      currentTime_IST:       now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n      currentTime_UTC:       now.toISOString(),\n      waitHours:             hours,\n      waitMinutesRemainder:  minutes,\n      humanReadable:         `Wait ${hours} hours and ${minutes} minutes`,\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        608
+      ],
+      "id": "676349ae-0e2b-4e63-b0e7-ab959c60a26b",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "path": "00000000-0000-0000-0000-000000000000",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -976,
+        256
+      ],
+      "id": "fef5110e-2c85-45e3-91ae-63e84079340c",
+      "name": "kylas meeting webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bothook.io/v1/public/triggers/webhooks/00000000-0000-0000-0000-000000000000",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "full name",
+              "value": "={{ $json.firstName }}"
+            },
+            {
+              "name": "phone number",
+              "value": "={{ $json.phoneNumber }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        496
+      ],
+      "id": "c766b03e-1536-499c-adc1-40b8bb1aa313",
+      "name": "HTTP Request1"
+    }
+  ],
+  "connections": {
+    "fetch full lead data": {
+      "main": [
+        [
+          {
+            "node": "format data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "fetch full lead data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format data": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kylas meeting webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

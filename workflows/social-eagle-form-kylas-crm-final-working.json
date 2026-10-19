@@ -1,0 +1,122 @@
+{
+  "name": "Social Eagle Form → Kylas CRM (FINAL WORKING)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-eagle-all-fields",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "ebc76cf6-95f7-4e20-99a7-6759a6b46f57",
+      "name": "Webhook - Receive Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const formData = JSON.parse($input.first().json.body);\n\n// Sanitize strings\nfor (const key in formData) {\n  if (typeof formData[key] === 'string') {\n    formData[key] = formData[key]\n      .replace(/\\\\/g, '\\\\\\\\')\n      .replace(/\"/g, '\\\\\"')\n      .replace(/\\n/g, ' ')\n      .replace(/\\r/g, '')\n      .replace(/\\t/g, ' ');\n  }\n}\n\n// Ensure _kylas IDs are never null — use 0 as safe fallback\nif (formData._kylas) {\n  if (!formData._kylas.time_slot_id) formData._kylas.time_slot_id = 0;\n  if (!formData._kylas.source_id) formData._kylas.source_id = 0;\n  if (!formData._kylas.sub_source_id) formData._kylas.sub_source_id = 0;\n  if (!formData._kylas.lead_type_id) formData._kylas.lead_type_id = 0;\n}\n\nreturn { json: formData };"
+      },
+      "id": "a8ee9270-d14f-41ee-8cca-f28ea0ffa978",
+      "name": "Parse Form Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kylas.io/v1/leads/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $json.full_name || '' }}\",\n  \"lastName\": \"Custom Form\",\n  \"phoneNumbers\": [\n    {\n      \"type\": \"MOBILE\",\n      \"code\": \"IN\",\n      \"value\": \"{{ $json.whatsapp ? $json.whatsapp.replace(($json.dial_code || '+91') + ' ', '') : '' }}\",\n      \"dialCode\": \"{{ $json.dial_code || '+91' }}\",\n      \"primary\": true\n    }\n  ],\n  \"emails\": [\n    {\n      \"type\": \"OFFICE\",\n      \"value\": \"{{ $json.email || '' }}\",\n      \"primary\": true\n    }\n  ],\n  \"source\": {{ $json._kylas && $json._kylas.source_id ? $json._kylas.source_id : 'null' }},\n  \"utmSource\": \"{{ $json.utm_source || '' }}\",\n  \"utmMedium\": \"{{ $json.utm_medium || '' }}\",\n  \"utmCampaign\": \"{{ $json.utm_campaign || '' }}\",\n  \"utmContent\": \"{{ $json.utm_content || '' }}\",\n  \"utmTerm\": \"{{ $json.utm_term || '' }}\",\n  \"customFieldValues\": {\n    \"cfCity\": \"{{ $json.city || '' }}\",\n    \"cfWhatIsYourCurrentProfessionBusiness\": \"{{ $json.profession || '' }}\",\n    \"cfEnquiryFor\": \"{{ $json.enquiry_for || '' }}\",\n    \"cfTellUsTheMainReasonWhyYouWantToLearn\": \"{{ $json.reason || '' }}\",\n    \"cfWhatIsTheBestTimeToCallYou\": {{ $json._kylas && $json._kylas.time_slot_id ? $json._kylas.time_slot_id : '' }},\n    \"cfLeadType\": [{{ $json._kylas && $json._kylas.lead_type_id ? $json._kylas.lead_type_id : '' }}],\n    \"cfSubSourceMultiPicklist\": [{{ $json._kylas && $json._kylas.sub_source_id ? $json._kylas.sub_source_id : '' }}]\n  }\n}",
+        "options": {}
+      },
+      "id": "a8b94a8a-871e-4b80-a8d9-6d71e0b6c2d5",
+      "name": "Create Lead in Kylas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        -48
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\n\nconst payload = {\n  firstName: d.full_name || '',\n  lastName: 'Custom Form',\n  phoneNumbers: [{\n    type: 'MOBILE',\n    code: 'IN',\n    value: d.whatsapp ? d.whatsapp.replace((d.dial_code || '+91') + ' ', '') : '',\n    dialCode: d.dial_code || '+91',\n    primary: true\n  }],\n  emails: [{\n    type: 'OFFICE',\n    value: d.email || '',\n    primary: true\n  }],\n  source: d._kylas && d._kylas.source_id ? d._kylas.source_id : null,\n  utmSource: d.utm_source || '',\n  utmMedium: d.utm_medium || '',\n  utmCampaign: d.utm_campaign || '',\n  utmContent: d.utm_content || '',\n  utmTerm: d.utm_term || '',\n  customFieldValues: {\n    cfCity: d.city || '',\n    cfWhatIsYourCurrentProfessionBusiness: d.profession || '',\n    cfEnquiryFor: d.enquiry_for || '',\n    cfTellUsTheMainReasonWhyYouWantToLearn: d.reason || '',\n    cfLeadType: d._kylas && d._kylas.lead_type_id ? [d._kylas.lead_type_id] : [],\n    cfSubSourceMultiPicklist: d._kylas && d._kylas.sub_source_id ? [d._kylas.sub_source_id] : []\n  }\n};\n\nif (d._kylas && d._kylas.time_slot_id) {\n  payload.customFieldValues.cfWhatIsTheBestTimeToCallYou = d._kylas.time_slot_id;\n}\n\nconst response = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'https://api.kylas.io/v1/leads/',\n  headers: {\n    'Content-Type': 'application/json',\n    'api-key': 'YOUR_SECRET'\n  },\n  body: payload,\n  json: true,\n  returnFullResponse: true\n});\n\nreturn { json: { status: response.statusCode, lead: response.body, payload_sent: payload } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        176
+      ],
+      "id": "259e0c18-7eae-4b6f-b273-5cf8a618f627",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\n\nconst LEAD_TYPE_MAP = {\n  'DM': 2794436,\n  'AI': 2794437,\n  'SOS': 2794438,\n  'AI for Kids': 2867807,\n  'EOS': 2898462,\n  'FFL': 2867808,\n  'ABR': 2898507,\n  '21DC': 2898483\n};\n\nfunction detectLeadType(enquiry, sheetLeadType) {\n  // If user selected an enquiry option, detect from that\n  if (enquiry && enquiry.trim()) {\n    var q = enquiry.toLowerCase();\n    \n    if (q.indexOf('ai') !== -1 && q.indexOf('kids') !== -1) return 'AI for Kids';\n    if (q.indexOf('entrepreneurship') !== -1 && q.indexOf('kids') !== -1) return 'FFL';\n    if (q.indexOf('business') !== -1 && q.indexOf('kids') !== -1) return 'FFL';\n    if (q.indexOf('founders') !== -1 || q.indexOf('ffl') !== -1) return 'FFL';\n    if (q.indexOf('digital') !== -1) return 'DM';\n    if (q.indexOf('ai') !== -1 || q.indexOf('genai') !== -1) return 'AI';\n    if (q.indexOf('sales') !== -1 || q.indexOf('selling') !== -1) return 'SOS';\n    if (q.indexOf('21dc') !== -1) return '21DC';\n    if (q.indexOf('entrepreneurship') !== -1) return 'EOS';\n  }\n  \n  // No enquiry data — fall back to sheet's lead_type\n  if (sheetLeadType && sheetLeadType.trim()) return sheetLeadType.trim();\n  \n  // Nothing at all — empty\n  return '';\n}\n\nconst leadTypeLabel = detectLeadType(d.enquiry_for || '', d.lead_type || '');\nconst leadTypeId = LEAD_TYPE_MAP[leadTypeLabel] || null;\n\nd.lead_type = leadTypeLabel;\nif (!d._kylas) d._kylas = {};\nd._kylas.lead_type_id = leadTypeId;\n\nreturn { json: d };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        176
+      ],
+      "id": "cfa330d0-3e66-4176-af4e-ddb445d62769",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Form": {
+      "main": [
+        [
+          {
+            "node": "Parse Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Form Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}
